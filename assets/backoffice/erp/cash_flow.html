@@ -1,0 +1,51 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Cash flow"}}</h1>
+      <p class="muted">{{call .T "Money in and out of the cash accounts. Credit card purchases enter when their invoice is paid. Transfers between the accounts in view cancel out."}}</p>
+    </div>
+  </section>
+  <form class="card filters" action="/admin/erp/cash-flow" method="GET">
+    <div class="field"><label for="from">{{call .T "From"}}</label><input type="date" id="from" name="from" value="{{.Body.From}}"></div>
+    <div class="field"><label for="to">{{call .T "To"}}</label><input type="date" id="to" name="to" value="{{.Body.To}}"></div>
+    <div class="field"><label for="group">{{call .T "Group by"}}</label><select id="group" name="group">{{range .Body.Groups}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="basis">{{call .T "Basis"}}</label><select id="basis" name="basis">{{range .Body.Bases}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="account">{{call .T "Account"}}</label><select id="account" name="account"><option value="">{{call .T "Cash accounts"}}</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="category">{{call .T "Category"}}</label><select id="category" name="category"><option value="">{{call .T "All"}}</option>{{range .Body.Categories}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="third-party">{{call .T "Third party"}}</label><select id="third-party" name="third-party"><option value="">{{call .T "All"}}</option>{{range .Body.ThirdParties}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Show"}}</button></div>
+  </form>
+  <div class="kpis">
+    {{if .Body.Flow.HasBalance}}<div class="kpi"><div class="label">{{call .T "Opening balance"}}</div><div class="value {{call .Sign .Body.Flow.Opening}}">{{call .Money .Body.Flow.Opening}}</div></div>{{end}}
+    <div class="kpi"><div class="label">{{call .T "Inflows"}}</div><div class="value pos">{{call .Money .Body.Flow.Inflows}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Outflows"}}</div><div class="value neg">{{call .Money .Body.Flow.Outflows}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Net"}}</div><div class="value {{call .Sign .Body.Flow.Net}}">{{call .Money .Body.Flow.Net}}</div></div>
+    {{if .Body.Flow.HasBalance}}<div class="kpi"><div class="label">{{call .T "Closing balance"}}</div><div class="value {{call .Sign .Body.Flow.Closing}}">{{call .Money .Body.Flow.Closing}}</div></div>{{end}}
+  </div>
+  <div class="card">
+    {{template "chart" .Body.Chart}}
+    <div class="legend"><span class="l-in">{{call .T "Inflows"}}</span><span class="l-out">{{call .T "Outflows"}}</span></div>
+  </div>
+  <div class="card table-card" style="margin-top:1rem;">
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Period"}}</th><th class="right">{{call .T "Inflows"}}</th><th class="right">{{call .T "Outflows"}}</th><th class="right">{{call .T "Net"}}</th>{{if .Body.Flow.HasBalance}}<th class="right">{{call .T "Balance"}}</th>{{end}}</tr></thead>
+      <tbody>
+        {{range $i, $row := .Body.Flow.Rows}}
+        <tr{{if and (eq $row.Inflows 0) (eq $row.Outflows 0)}} class="dim"{{end}}>
+          <td><a href="/admin/erp/list-transactions?date-field=settled&amp;from={{call $.ISO $row.Start}}&amp;to={{call $.ISO $row.End}}">{{index $.Body.Labels $i}}</a></td>
+          <td class="money pos">{{call $.Money $row.Inflows}}</td>
+          <td class="money neg">{{call $.Money $row.Outflows}}</td>
+          <td class="money {{call $.Sign $row.Net}}">{{call $.Money $row.Net}}</td>
+          {{if $.Body.Flow.HasBalance}}<td class="money {{call $.Sign $row.Balance}}"><strong>{{call $.Money $row.Balance}}</strong></td>{{end}}
+        </tr>
+        {{end}}
+      </tbody>
+      <tfoot><tr><td>{{call .T "Total"}}</td><td class="money pos">{{call .Money .Body.Flow.Inflows}}</td><td class="money neg">{{call .Money .Body.Flow.Outflows}}</td><td class="money {{call .Sign .Body.Flow.Net}}">{{call .Money .Body.Flow.Net}}</td>{{if .Body.Flow.HasBalance}}<td class="money">{{call .Money .Body.Flow.Closing}}</td>{{end}}</tr></tfoot>
+    </table>
+    </div>
+  </div>
+</main>
+{{end}}

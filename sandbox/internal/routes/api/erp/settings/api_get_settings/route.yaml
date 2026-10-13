@@ -1,0 +1,19 @@
+body:
+    content-type: application/json
+    max-bytes: 1048576
+    type: json
+category: Settings
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/get-settings -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpGetSettings
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/get-settings
+priority: 100
+response-type: application/json
+summary: Answers the settings

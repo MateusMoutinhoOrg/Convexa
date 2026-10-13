@@ -1,0 +1,14 @@
+category: Budgets
+methods:
+    - GET
+paths:
+    - end: -1
+      id: AdminManageAddBudget
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-budget
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds budgets

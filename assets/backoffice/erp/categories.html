@@ -1,0 +1,54 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Categories"}}</h1>
+      <p class="muted">{{call .T "Classify income and expenses. A category may sit under another: reports and budgets of the parent count its subcategories too."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-category">+ {{call .T "Add category"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <form class="card filters" action="/admin/erp/list-categories" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Search}}">
+    </div>
+    <div class="field">
+      <label for="type">{{call .T "Type"}}</label>
+      <select id="type" name="type">
+        <option value="">{{call .T "All"}}</option>
+        {{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+      </select>
+    </div>
+    {{template "status-filter" .}}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/erp/list-categories">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Category"}}</th><th>{{call .T "Type"}}</th><th>{{call .T "Status"}}</th><th class="right">{{call .T "Actions"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr{{if eq .Category.Status "archived"}} class="dim"{{end}}>
+          <td><span class="muted">{{.Indent}}</span>{{.Category.Name}}{{if .Depth}}<span class="sub">{{.Path}}</span>{{end}}</td>
+          <td><span class="badge badge-{{.Category.Type}}">{{call $.T .Category.Type}}</span></td>
+          <td><span class="badge badge-{{.Category.Status}}">{{call $.T .Category.Status}}</span></td>
+          <td><div class="row-actions">
+            <a class="btn btn-small" href="/admin/erp/list-transactions?category={{.Category.Id}}">{{call $.T "Transactions"}}</a>
+            {{if $.Viewer.CanManage}}<a class="btn btn-small" href="/admin/manage/set-category/{{.Category.Id}}">{{call $.T "Edit"}}</a>{{end}}
+          </div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No categories yet."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-category">{{call .T "Add the first one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

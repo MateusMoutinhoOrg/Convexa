@@ -1,0 +1,46 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back to budgets"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="company">{{call .T "Company"}}</label>
+          <select id="company" name="company" required><option value="">—</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="category">{{call .T "Category"}}</label>
+          <select id="category" name="category" required><option value="">—</option>{{range .Body.Categories}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Group}} · {{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="amount">{{call .T "Amount"}}</label>
+          <input type="text" inputmode="decimal" class="amount-input" id="amount" name="amount" value="{{.Body.Values.Amount}}" required placeholder="{{call .T "0.00"}}">
+        </div>
+        {{if not .Body.IsEdit}}
+        <div class="form-group">
+          <label for="months">{{call .T "Repeat monthly for"}}</label>
+          <input type="number" min="0" max="60" id="months" name="months" value="{{.Body.Values.Months}}" placeholder="0">
+          <p class="hint">{{call .T "Above 0: one budget per month, from the month of the start, each spanning its whole month."}}</p>
+        </div>
+        {{end}}
+        <div class="form-group">
+          <label for="period-start">{{call .T "Period start"}}</label>
+          <input type="date" id="period-start" name="period-start" value="{{.Body.Values.PeriodStart}}" required>
+        </div>
+        <div class="form-group">
+          <label for="period-end">{{call .T "Period end"}}</label>
+          <input type="date" id="period-end" name="period-end" value="{{.Body.Values.PeriodEnd}}">
+        </div>
+        <div class="form-group full">
+          <label for="notes">{{call .T "Notes"}}</label>
+          <textarea id="notes" name="notes" maxlength="2000">{{.Body.Values.Notes}}</textarea>
+        </div>
+      </div>
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{template "form-remove" .}}
+</main>
+{{end}}

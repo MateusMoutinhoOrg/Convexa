@@ -1,0 +1,61 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Payables & receivables"}}</h1>
+      <p class="muted">{{call .T "What is still to pay and to receive: pending transactions and the card invoices left to pay. Overdue items are always listed."}}</p>
+    </div>
+  </section>
+  {{template "notice" .}}
+  <form class="card filters" action="/admin/erp/payables-receivables" method="GET">
+    <div class="field"><label for="kind">{{call .T "Show"}}</label><select id="kind" name="kind"><option value="">{{call .T "Both"}}</option>{{range .Body.Kinds}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="from">{{call .T "Due from"}}</label><input type="date" id="from" name="from" value="{{.Body.From}}"></div>
+    <div class="field"><label for="to">{{call .T "Due up to"}}</label><input type="date" id="to" name="to" value="{{.Body.To}}"></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="account">{{call .T "Account"}}</label><select id="account" name="account"><option value="">{{call .T "All"}}</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="third-party">{{call .T "Third party"}}</label><select id="third-party" name="third-party"><option value="">{{call .T "All"}}</option>{{range .Body.ThirdParties}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label class="inline" style="margin-top:1.6rem;"><input type="checkbox" name="overdue" value="on"{{if .Body.Overdue}} checked{{end}}> {{call .T "Overdue only"}}</label></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button><a class="btn" href="/admin/erp/payables-receivables">{{call .T "Clear"}}</a></div>
+  </form>
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "To receive"}}</div><div class="value pos">{{call .Money .Body.List.Receivable}}</div><div class="hint">{{call .T "overdue"}} {{call .Money .Body.List.OverdueReceivable}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "To pay"}}</div><div class="value neg">{{call .Money .Body.List.Payable}}</div><div class="hint">{{call .T "overdue"}} {{call .Money .Body.List.OverduePayable}}</div></div>
+  </div>
+  <div class="card table-card">
+    {{if .Body.Items}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Due"}}</th><th>{{call .T "Description"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Account"}}</th><th>{{call .T "Third party"}}</th><th>{{call .T "Kind"}}</th><th class="right">{{call .T "Amount"}}</th>{{if .Viewer.CanManage}}<th class="right">{{call .T "Actions"}}</th>{{end}}</tr></thead>
+      <tbody>
+        {{range .Body.Items}}
+        <tr>
+          <td style="white-space:nowrap">{{call $.Date .DueDate}}{{if .Event.Overdue}} <span class="badge badge-overdue">{{call $.T "overdue"}}</span>{{end}}</td>
+          <td>{{if eq .Event.Source "invoice"}}💳 {{end}}{{call $.T .Description}}<span class="sub">{{.Category}}</span></td>
+          <td>{{.Company}}</td>
+          <td>{{.Account}}</td>
+          <td>{{.ThirdParty}}</td>
+          <td><span class="badge {{if eq .Kind "payable"}}badge-expense{{else}}badge-income{{end}}">{{call $.T .Kind}}</span></td>
+          <td class="money {{if eq .Kind "payable"}}neg{{else}}pos{{end}}"><strong>{{call $.Money .Amount}}</strong></td>
+          {{if $.Viewer.CanManage}}
+          <td><div class="row-actions">
+            {{if .CanSettle}}
+            <form action="/admin/manage/settle-transaction/{{.Event.TxId}}" method="POST">
+              <input type="hidden" name="settled-date" value="{{$.Body.TodayISO}}">
+              <input type="hidden" name="next" value="{{$.Body.Self}}">
+              <button type="submit" class="btn btn-small btn-ok">✓ {{if eq .Kind "payable"}}{{call $.T "Paid"}}{{else}}{{call $.T "Received"}}{{end}}</button>
+            </form>
+            {{end}}
+            <a class="btn btn-small" href="{{.Href}}{{if .CanSettle}}?next={{urlquery $.Body.Self}}{{end}}">{{if eq .Event.Source "invoice"}}{{call $.T "Pay"}}{{else}}{{call $.T "Open"}}{{end}}</a>
+          </div></td>
+          {{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "Nothing to pay or receive in this period."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

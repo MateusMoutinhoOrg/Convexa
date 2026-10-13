@@ -1,0 +1,20 @@
+category: Settings
+methods:
+    - GET
+parameters:
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminRootSettings
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/root/settings
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the settings

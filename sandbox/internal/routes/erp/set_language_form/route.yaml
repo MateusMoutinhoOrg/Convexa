@@ -1,0 +1,31 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            language:
+                enum:
+                    - en
+                    - pt
+                type: string
+            next:
+                type: string
+        required:
+            - language
+        type: object
+    max-bytes: 4096
+    required: true
+    type: form
+category: Backoffice
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminSetLanguage
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/set-language
+priority: 100
+private: true
+response-type: text/html
+summary: Saves the language the signed-in user sees the pages in

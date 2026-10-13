@@ -1,0 +1,32 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            document:
+                type: string
+            id:
+                type: integer
+            name:
+                type: string
+            notes:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Companies
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/set-company -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"name":"Personal","document":"","notes":"","status":"active"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSetCompany
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/set-company
+priority: 100
+response-type: application/json
+summary: Rewrites every field of a company

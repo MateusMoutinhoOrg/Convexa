@@ -1,0 +1,52 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            account:
+                type: integer
+            amount:
+                type: integer
+            card-invoice:
+                type: string
+            category:
+                type: integer
+            company:
+                type: integer
+            date:
+                type: string
+            description:
+                type: string
+            document-number:
+                type: string
+            due-date:
+                type: string
+            installments:
+                type: integer
+            notes:
+                type: string
+            settled-date:
+                type: string
+            status:
+                type: string
+            third-party:
+                type: integer
+            type:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Transactions
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/add-transaction -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"company":1,"account":1,"category":0,"third-party":0,"type":"expense","amount":15990,"description":"Office supplies","document-number":"","notes":"","date":"2026-10-12","due-date":"2026-10-20","status":"pending","settled-date":"","card-invoice":"","installments":1}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageAddTransaction
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/add-transaction
+priority: 100
+response-type: application/json
+summary: Adds a transaction, or a purchase in installments

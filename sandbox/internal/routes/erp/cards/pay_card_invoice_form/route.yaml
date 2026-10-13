@@ -1,0 +1,35 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            date:
+                type: string
+            from-account:
+                type: string
+            month:
+                type: string
+            settled:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Credit cards
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManagePayCardInvoice
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/pay-card-invoice
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Pays what is left of a credit card invoice

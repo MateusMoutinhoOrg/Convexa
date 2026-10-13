@@ -1,0 +1,14 @@
+category: Recurrences
+methods:
+    - GET
+paths:
+    - end: -1
+      id: AdminManageAddRecurrence
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-recurrence
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds a recurrence

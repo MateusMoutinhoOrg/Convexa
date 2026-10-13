@@ -1,0 +1,50 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            amount:
+                type: integer
+            card-invoice:
+                type: string
+            date:
+                type: string
+            description:
+                type: string
+            document-number:
+                type: string
+            due-date:
+                type: string
+            from-account:
+                type: integer
+            from-company:
+                type: integer
+            id:
+                type: integer
+            notes:
+                type: string
+            settled-date:
+                type: string
+            status:
+                type: string
+            to-account:
+                type: integer
+            to-company:
+                type: integer
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Transactions
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/set-transfer -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"from-account":1,"to-account":2,"from-company":1,"to-company":1,"amount":50000,"description":"Transfer to savings","document-number":"","notes":"","date":"2026-10-12","due-date":"","status":"settled","settled-date":"","card-invoice":""}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSetTransfer
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/set-transfer
+priority: 100
+response-type: application/json
+summary: Rewrites both legs of a transfer

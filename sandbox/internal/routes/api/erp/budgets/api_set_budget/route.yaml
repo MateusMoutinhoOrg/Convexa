@@ -1,0 +1,38 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            amount:
+                type: integer
+            category:
+                type: integer
+            company:
+                type: integer
+            id:
+                type: integer
+            months:
+                type: integer
+            notes:
+                type: string
+            period-end:
+                type: string
+            period-start:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Budgets
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/set-budget -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"company":1,"category":2,"period-start":"2026-10-01","period-end":"2026-10-31","amount":300000,"notes":"","months":0}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSetBudget
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/set-budget
+priority: 100
+response-type: application/json
+summary: Rewrites every field of a budget

@@ -1,0 +1,55 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            amount:
+                type: string
+            card-invoice:
+                type: string
+            date:
+                type: string
+            description:
+                type: string
+            document-number:
+                type: string
+            due-date:
+                type: string
+            from-account:
+                type: string
+            from-company:
+                type: string
+            next:
+                type: string
+            notes:
+                type: string
+            settled:
+                type: string
+            settled-date:
+                type: string
+            to-account:
+                type: string
+            to-company:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Transactions
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManageSetTransfer
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/set-transfer
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Edits a transfer

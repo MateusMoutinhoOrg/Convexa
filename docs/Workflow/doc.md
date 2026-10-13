@@ -1,0 +1,318 @@
+# Workflow
+
+Every change this project takes and the command that makes it. `agnos` owns every generated
+file; what stays hand-written is listed in [GeneratedFiles](../GeneratedFiles/doc.md), and the
+rules each recipe holds to are in [Rules](../Rules/doc.md).
+
+## The loop
+
+```bash
+agnos build      # verify + regenerate every generated file + go mod tidy + compile
+agnos verify     # the schema check alone, writes nothing
+```
+
+`build` is the only thing that regenerates the dispatch, the wiring,
+`README.md` and `docs/`, so run it after every hand edit. It is idempotent: a second run leaves
+the tree unchanged. Every command below takes `--path <dir>` (default `.`) and `-q`, and runs
+`build` for you.
+
+No recipe below asks for a Go file to be created by hand except the cases listed under
+[Hand-written code](#hand-written-code).
+
+## Choose what agnos generates
+
+```bash
+agnos list-extensions             # every generation mechanic and whether it is on
+agnos enable-extension readme     # start generating README.md again
+agnos disable-extension doc       # stop generating docs/, keep what is there
+```
+
+`AgnosConfig/extensions.yaml` is what `build` reads to decide what to render. Turning a
+mechanic off stops the generation and removes nothing: the files stay, and they are yours to
+edit. Every key is in [Extensions](../Extensions/doc.md).
+
+## Change the command surface
+
+```bash
+agnos add-command <name> --summary "one line" [--category "Core"] [--pattern 'route add {name}']
+agnos add-command <name> --middleware --summary "..."      # runs in front of every command line
+agnos add-arg  <name> --command <cmd> [--type integer] [--required] [--start 1 --end -1]
+agnos add-flag <name> --command <cmd> [--key --out --key -o] [--type integer --min 1] [--enum a --enum b]
+agnos set-command <cmd> --description "..." --example "<cmd> --flag v" --identifier <alias>
+agnos set-arg <name> --command <cmd> ... / set-flag <name> --command <cmd> ...
+agnos remove-arg <name> --command <cmd> / remove-flag <name> --command <cmd> / remove-command <cmd>
+agnos list-commands / show-command <cmd> / explain-command -- <argv…>
+```
+
+`add-command` writes `sandbox/internal/commands/[<--dir>/]<name>/command.yaml` (the declaration) and a
+stub `handler.go` (yours), then generates `generated.new.go` — the `api.Command` that joins
+`Cli.Commands` — and `generated.input.go`, the `Input` it is handed. Every key these editors write is
+in [CommandYaml](../CommandYaml/doc.md); never edit `command.yaml` by hand.
+
+Then write `handler.go` — the whole hand-written half of a command:
+
+```go
+func Handle(sandbox *api.Sandbox, props *commandprops.CommandProps, input *Input, response *api.CommandResponse) error {
+	result, err := something(sandbox, input.Name)
+	if err != nil {
+		return sandbox.Deps.OpinionatedAgnosCli.Fail(api.ExitFailure, "", err.Error())
+	}
+	response.Printf("%s\n", result)
+	return nil
+}
+```
+
+Every value arrives typed, defaulted and checked: bad input was answered with exit 2 before the
+handler ran. Printing through `response` answers the line with exit 0; a returned error fails it
+with exit 1, even after a print. A command that prints nothing has still run — only a
+`--middleware` that answers nothing hands the line to the next command of the chain. [Commands](../Commands/doc.md) documents the command on the
+next build.
+
+
+## Change the route surface
+
+```bash
+agnos add-route <name> --pattern '/users/{id:integer}' --method POST --summary "one line" --category "Users"
+agnos add-route <name> --trigger /admin --trigger-type prefix   # /admin and under, never /administrator
+agnos add-route <name> --middleware --trigger /admin --before <route>
+agnos set-route <route> --method PUT --response-type text/plain --example "curl localhost:8080/users"
+agnos add-path <name> --route <route> --start 1 --end 1 --type integer   # one slice of the path
+agnos add-path <name> --route <route> --start 0 --end 0 --trigger /v1
+agnos add-parameter <name> --route <route> --source header --required
+agnos add-parameter <name> --route <route> --type integer --default 1
+agnos set-body <route> --type json --required --max-bytes 2097152
+agnos add-body-field <dotted.name> --route <route> --format email --required
+agnos import-body <route> --file payload.json --required --infer-format
+agnos set-path <name> --route <route> --end -1                  # and set-parameter
+agnos set-body-field <dotted.name> --route <route> --max 130 --clear format
+agnos show-route <route>                                      # the whole declaration as a tree
+agnos list-routes                                             # the chain, in run order
+agnos explain-route GET /admin/users --header authorization=x   # which routes one request reaches
+agnos rename-route <route> <name>
+agnos rebalance-routes --step 10                              # room between the rungs again
+agnos remove-parameter <name> --route <route>                 # and remove-path
+agnos remove-body-field <dotted.name> --route <route>
+agnos remove-route <route>
+```
+
+`add-route` writes `sandbox/internal/routes/[<--dir>/]<name>/route.yaml` (the declaration, `priority`
+and `response-type` always included — `100` for a route, `10` for a `--middleware`) and a stub
+`handler.go` (yours), then
+generates `generated.new.go` — the `api.Route` that lands in `Server.Routes`, a 1:1 image of the
+yaml — and `generated.input.go` — the `Input` the handler is handed.
+One editor per place the declaration holds something, so every key of
+[RouteYaml](../RouteYaml/doc.md) is reachable from the command line and `route.yaml` is never
+edited by hand. `add-body-field` takes a dotted path (`address.city`) and creates the objects
+it passes through — into the `json-schema` of a json body, or the flat `form-schema` of a form
+one; `set-body` covers the envelope around the schema — how the body is read, whether it is
+required, its size limit and its content-type.
+
+Each `add-` has a `set-` beside it, so a key that was forgotten is added to the declaration
+that is there instead of removing it and declaring it again: the keys given are written over
+the ones already declared, `--clear <key>` takes one off, and the result goes through the same
+constructor the `add-` side calls. `import-body` is `add-body-field` run once per key of an
+example payload — a document pasted with `--json` or read with `--file`, inferring a type per
+key, the objects and lists around them and, with `--infer-format`, the four formats a string
+may spell; it never writes over a property already declared, and `--replace` starts the schema
+over. `show-route` prints the whole declaration as a tree, `list-routes` the chain, and
+`explain-route` which routes one request reaches and why the others are skipped — the three
+write nothing, and `explain-route` is the first step when a route does not run.
+
+Then write `handler.go` — the whole hand-written half of a route:
+
+```go
+func Handle(sandbox *api.Sandbox, props *routeprops.RouteProps, input *Input, response *serverdeps.Response) error {
+	response.SetStatus(api.StatusCreated)
+	response.Write(payload(sandbox, create(sandbox, props.User, input.Tenant, input.Body)))
+	return nil
+}
+```
+
+`entries` arrives bound and converted — one field per path and per parameter, named by its id,
+and the body on `Body` — so a bad request was already answered `400` before the handler ran.
+
+Setting a status or writing a byte is what answers the request. Several routes may match one
+request; they run in `priority` order and stop at the first one that answers, so a handler that
+does neither has declined and the next one runs — that is the whole of what a middleware is, and
+`props` — the request's `routeprops.RouteProps`, typed in `sandbox/internal/routeprops/project.go` — carries what it
+learned to the routes after it. A handler refuses a request by returning `sandbox.Deps.OpinionatedAgnosServer.Fail`. What no route answers is answered
+by the eight `sandbox/internal/server/errors/handle_*.go`, which `build` writes once and no build
+rewrites: they are where a 404, a 405, a 401 or a 500 is worded.
+[Routes](../Routes/doc.md) documents the route on the next build, and
+[ServerUsage](../ServerUsage/doc.md) is the whole recipe.
+
+
+## Change the page surface
+
+```bash
+agnos add-page <name> --title "One Line"   # assets/front/<name>.html, answered on /<name>
+agnos remove-page <name>                   # deletes the html
+```
+
+A page is a file of `assets/front/`, served as it is by the `front` route: write it by
+hand, scaffold it with `add-page`, or point a bundler's output there. Data comes from api
+routes the page's js calls. [FrontUsage](../FrontUsage/doc.md) is the whole recipe.
+
+## Change the database surface
+
+```bash
+agnos add-database app-database --key-prefix app
+agnos add-table url --database app-database
+agnos add-table-field alias --database app-database --table url --type key --required
+agnos add-table-field visits --database app-database --table url --type object
+agnos add-table-field agent --database app-database --table url --parent visits
+agnos show-database app-database                  # read the declaration back
+```
+
+`set-table-field` and the `remove-` half of each pair are the inverses. Every command rewrites
+`sandbox/internal/databases/<db>/database.yaml` and runs `build`, which regenerates `generated.api.go`,
+`generated.new.go` and `generated.methods.go` from it — the records, the insert structs, the filter and the body
+of every method.
+
+Then call it from wherever needs it:
+
+```go
+db := app_database.New(sandbox)
+url, err := db.AddUrl(app_database.UrlNew{Alias: "gh", Link: "https://github.com"})
+found, ok := db.FindUrlByAlias("gh")
+```
+
+A query the declaration cannot describe goes in `methods_custom.go` beside them, hand-written
+and rewritten by no build. [Databases](../Databases/doc.md) is the whole recipe.
+
+## Run the backoffice
+
+```bash
+export CONVEXA_BACKOFFICE_SECRET=$(openssl rand -hex 32)   # optional: unset, one is generated per run
+convexa add-backoffice-user --username admin --email admin@example.com --role root
+convexa start-server --insecure-http   # then /admin/login
+```
+
+Every page, route and package of it is the project's, written once: change it by hand.
+[Backoffice](../Backoffice/doc.md) is the whole map.
+## Add reusable logic
+
+`sandbox/internal/<pkg>/`, one directory per concern, imported by whatever needs it. No
+declaration, no generated counterpart — write the package and run `build`.
+
+## Add a surface to the sandbox api
+
+The api is what a Go caller gets back from `sandbox.New` (see [LibUsage](../LibUsage/doc.md)).
+Two hand-written places, then `build` regenerates `sandbox/api/generated.sandbox.go` and
+`sandbox/generated.new.go` around them:
+
+1. `sandbox/api/<x>.go` — the contract: `type <X> struct { ... }` of function fields, named
+   after the file, every declaration doc-commented (those comments render
+   [PublicApi](../PublicApi/doc.md)). It becomes the `api.Sandbox` field `<X>`.
+2. `sandbox/internal/<x>/new.go` — `func New<X>(sandbox *api.Sandbox) api.<X>`, assigning each
+   field of the contract, with the implementation beside it.
+
+`build` then writes `sandbox/constructors/<x>/constructor.go` — `sandbox.<X> =
+<x>.New<X>(sandbox)` — **once**, and `sandbox/generated.new.go` calls it. From there the constructor is
+yours: wrap the implementation, decorate the contract, or build a different one entirely.
+
+## Construct a field yourself
+
+`sandbox/generated.new.go` is one `<x>.Constructor(&self)` per directory of `sandbox/constructors/`, so
+adding a directory is adding a call. Write `sandbox/constructors/<x>/constructor.go` with
+`func Constructor(sandbox *api.Sandbox)` in `package <x>`, run `build`, and it is wired — the
+same way a generated one is, and with no generated file to fight over. Editing a constructor
+`build` wrote earlier works for the same reason: nothing rewrites it.
+
+## Add a dependency
+
+Everything the sandbox is not allowed to do itself — filesystem, clock, network, subprocess —
+arrives through `sandbox.Deps`. Install a ready-made one:
+
+```bash
+agnos list-deps                 # every installable contract
+agnos add-dep <dep>             # sandbox/deps/<dep>/ + its default adapter + the go.mod require
+agnos add-dep <dep> --adapter <adapter>
+agnos remove-dep <dep> [--with-adapters]
+```
+
+[DepList](../DepList/doc.md) is the catalogue. For one of your own, write the two halves:
+
+1. `sandbox/deps/<x>deps/<x>deps.go` — `type Contract struct { ... }` of function fields, no import at all.
+2. `adapters/impls/<impl><x>/<impl><x>.go` — `func Bind(deps *deps.Deps) { deps.<X>Deps = <x>deps.Contract{...} }`,
+   any import allowed, beside an `adapter.yaml` saying `dep: <x>deps`.
+
+Then bind it: add `<impl><x>` to `adapters/bindings/standard/binding.yaml`, or let
+`agnos add-dep` do both for a dep of the catalogue. Reach it as `sandbox.Deps.<X>Deps`
+from anywhere inside `sandbox/`.
+
+One contract may have several adapters — see [Adapters](../Adapters/doc.md).
+
+## Add a doc
+
+```bash
+agnos add-doc <Name> --theme <id> --description "one line"    # themes: AgnosConfig/themes.yaml
+agnos add-doc <Name>/<Sub> --description "one line"           # sub-doc, no theme
+agnos remove-doc <Name>
+```
+
+Write `docs/<Name>/doc.md`; `README.md`'s index, and the parent `Index.md` of a sub-doc, are
+regenerated. Describe any new path worth naming in `AgnosConfig/structure.yaml` — that
+file is what renders [Structure](../Structure/doc.md).
+
+## Add an example
+
+```bash
+agnos add-cli-example <name>       # examples/cli/<name>/example.sh
+agnos add-lib-example <name>       # examples/lib/<name>/example.go
+agnos run-examples                    # run them all, check each against its golden
+agnos run-examples --only <name>      # one example, both sides
+agnos update-example <name>           # rewrite that one golden with what it produces now
+agnos run-examples --update           # rewrite every golden at once
+agnos remove-cli-example <name>
+agnos remove-lib-example <name>
+```
+
+Write the example itself, ending with the copy out of `test-dir` into `assert-dir` that says what
+it asserts: `result.yaml` records `assert-dir`, and an example that copies nothing out fails.
+The golden is written by the first `run-examples` and refreshed with `update-example <name>`, which
+prints what it changes before writing. Details in [LibExamples](../LibExamples/doc.md) and
+[CliExamples](../CliExamples/doc.md).
+
+## Hand-written code
+
+| File | Written when |
+| --- | --- |
+| `sandbox/internal/commands/<name>/handler.go` | a command does something |
+| `sandbox/internal/routes/<name>/handler.go` | a route answers something |
+| `assets/front/**` | the site looks like something |
+| `sandbox/internal/server/backoffice/**`, `assets/backoffice/*.html` | the backoffice behaves or looks otherwise |
+| `sandbox/internal/<pkg>/*.go` (never named `generated.*`) | logic worth reusing |
+| `sandbox/api/<x>.go` + `sandbox/internal/<x>/new.go` | a new api surface |
+| `sandbox/constructors/<x>/constructor.go` | how a field of the `Sandbox` is built |
+| `sandbox/deps/<x>/<x>.go` + `adapters/impls/<x>/<x>.go` + its `adapter.yaml` | a new dependency |
+
+Everything else is regenerated over. Two more files are yours: `AgnosConfig/docs/ReadmeHeader.md`
+is the whole of `README.md` above the documentation index, and `LICENSE` is pasted verbatim into
+its License section — put whatever license you want there.
+
+A project built before the `OpinionatedAgnos<X>` libs keeps hand-written files written against
+the generated packages they replaced. `add-dep` the lib of every mechanic that is on (`verify`
+names the missing ones); the next `build` removes `sandbox/internal/generated/{cliio,trigger,routeio,frontio,databaseio}`,
+`cli/command`, `server/route`, `main.go` and `main.go`; then `verify` names every
+hand-written import of them with its replacement — `cliio.Fail(sandbox, …)` is
+`sandbox.Deps.OpinionatedAgnosCli.Fail(…)`, `routeio.RequestOf(route)` is `route.Request`, a `Handle*`
+logs and then calls `OpinionatedAgnosServer.WriteError(sandbox.Deps.SerializableDeps, …)`, and
+`start-server` calls `sandbox.Server.Serve` rather than `server.Main`.
+
+A project built before the `generated.` prefix needs nothing done by hand: its next `build`
+writes every generated Go file as `generated.<name>.go` (a remote dep's copy and shim included),
+drops the old name beside it, moves `sandbox/internal/generated/{cli,server,config}` to
+`sandbox/internal/<x>/` and rewrites the import of each in the project's own files.
+
+## Ship
+
+```bash
+agnos compile --target all   # cross-compile ./cmd/main into release/
+agnos publish                # build, compile, then a gh release
+```
+
+`go build -o release/convexa ./cmd/main` is the plain local binary.
+`publish` names the release after `version` in `AgnosConfig/project.yaml`; bump it there
+first. `compile` targets: `linux86`, `linuxarm64`, `linuxi32`, `mac86`, `macarm64`,
+`windows86`, `windowsi32`, or `all`.

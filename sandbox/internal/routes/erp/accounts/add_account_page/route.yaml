@@ -1,0 +1,14 @@
+category: Accounts
+methods:
+    - GET
+paths:
+    - end: -1
+      id: AdminManageAddAccount
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-account
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds an account

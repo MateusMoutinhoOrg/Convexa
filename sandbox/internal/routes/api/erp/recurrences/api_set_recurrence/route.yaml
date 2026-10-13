@@ -1,0 +1,50 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            account:
+                type: integer
+            amount:
+                type: integer
+            category:
+                type: integer
+            company:
+                type: integer
+            description:
+                type: string
+            end-date:
+                type: string
+            frequency:
+                type: string
+            id:
+                type: integer
+            interval:
+                type: integer
+            notes:
+                type: string
+            start-date:
+                type: string
+            status:
+                type: string
+            third-party:
+                type: integer
+            type:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Recurrences
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/set-recurrence -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"company":1,"account":1,"category":0,"third-party":0,"type":"expense","amount":250000,"description":"Office rent","notes":"","frequency":"monthly","interval":1,"start-date":"2026-11-05","end-date":"","status":"active"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSetRecurrence
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/set-recurrence
+priority: 100
+response-type: application/json
+summary: Rewrites every field of a recurrence

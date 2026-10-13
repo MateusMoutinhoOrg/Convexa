@@ -1,0 +1,14 @@
+category: Reports
+methods:
+    - GET
+paths:
+    - end: -1
+      id: AdminErpDashboard
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/dashboard
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the overview of every company's finances

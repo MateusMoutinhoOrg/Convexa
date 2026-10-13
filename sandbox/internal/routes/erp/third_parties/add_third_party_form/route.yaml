@@ -1,0 +1,38 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            address:
+                type: string
+            document:
+                type: string
+            email:
+                type: string
+            name:
+                type: string
+            notes:
+                type: string
+            phone:
+                type: string
+            role:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Third parties
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminManageAddThirdParty
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-third-party
+priority: 100
+private: true
+response-type: text/html
+summary: Adds a third party

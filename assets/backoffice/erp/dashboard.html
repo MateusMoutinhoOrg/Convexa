@@ -1,0 +1,103 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Dashboard"}}</h1>
+      <p class="muted">{{call .Date .Today}} · {{call .T "every company, every account"}}</p>
+    </div>
+    {{if .Viewer.CanManage}}
+    <div class="actions">
+      <a class="btn btn-ok" href="/admin/manage/add-transaction?type=income">+ {{call .T "Income"}}</a>
+      <a class="btn btn-danger" href="/admin/manage/add-transaction?type=expense">+ {{call .T "Expense"}}</a>
+      <a class="btn" href="/admin/manage/add-transfer">⇄ {{call .T "Transfer"}}</a>
+    </div>
+    {{end}}
+  </section>
+  {{if .Body.Empty}}
+  <div class="notice notice-warn">{{call .T "Start by registering a company — yourself, for personal finances — and an account. Then add transactions, cards, recurrences and budgets."}}
+    {{if .Viewer.CanManage}}<a href="/admin/manage/add-company">{{call .T "Add company"}}</a> · <a href="/admin/manage/add-account">{{call .T "Add account"}}</a>{{end}}</div>
+  {{end}}
+  {{with .Body.Dashboard}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call $.T "Cash"}}</div><div class="value {{call $.Sign .Totals.Cash}}">{{call $.Money .Totals.Cash}}</div><div class="hint">{{call $.T "settled balance of the cash accounts"}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Card debt"}}</div><div class="value">{{call $.Money .Totals.CardDebt}}</div><div class="hint">{{call $.T "net"}} {{call $.Money $.Body.Net}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "To receive · 30 days"}}</div><div class="value pos">{{call $.Money .Due30.Receivable}}</div><div class="hint">{{call $.T "overdue"}} {{call $.Money .Due30.OverdueReceivable}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "To pay · 30 days"}}</div><div class="value neg">{{call $.Money .Due30.Payable}}</div><div class="hint">{{call $.T "overdue"}} {{call $.Money .Due30.OverduePayable}}</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>{{$.Body.MonthLabel}}</h2>
+      <dl class="facts">
+        <dt>{{call $.T "Income"}}</dt><dd class="num pos">{{call $.Money .MonthIncome}}{{if .MonthBudgetIncome}} <span class="muted small">/ {{call $.Money .MonthBudgetIncome}}</span>{{end}}</dd>
+        <dt>{{call $.T "Expense"}}</dt><dd class="num neg">{{call $.Money .MonthExpense}}{{if .MonthBudgetExpense}} <span class="muted small">/ {{call $.Money .MonthBudgetExpense}}</span>{{end}}</dd>
+        <dt>{{call $.T "Result"}}</dt><dd class="num {{call $.Sign $.Body.MonthNet}}"><strong>{{call $.Money $.Body.MonthNet}}</strong></dd>
+      </dl>
+      {{if .MonthBudgetExpense}}
+      <p class="muted small" style="margin-top:1rem;">{{call $.T "Expense against the month's budgets"}}</p>
+      <div class="meter{{if $.Body.ExpenseOver}} over{{end}}" style="margin-top:0.4rem;"><span style="width: {{$.Body.ExpenseMeter}}%"></span></div>
+      {{end}}
+      <p class="small" style="margin-top:1rem;"><a href="/admin/erp/company-report">{{call $.T "Details by category"}} →</a></p>
+    </div>
+    <div class="card">
+      <h2>{{call $.T "Projected balance · 12 months"}}</h2>
+      {{template "chart" $.Body.Chart}}
+      <div class="legend"><span class="l-a">{{call $.T "Without budgets"}}</span><span class="l-b">{{call $.T "With budgets"}}</span></div>
+      <p class="small" style="margin-top:0.6rem;">{{call $.Tf "In a year: %s, or %s with the budgets." (call $.Money .Projection.Final) (call $.Money .Projection.FinalWithBudgets)}} <a href="/admin/erp/projection">{{call $.T "Open"}} →</a></p>
+    </div>
+  </div>
+  {{end}}
+  <div class="grid-2" style="margin-top:1rem;">
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0; display:flex; justify-content:space-between;"><h2>{{call .T "Next payables and receivables"}}</h2><a class="small" href="/admin/erp/payables-receivables">{{call .T "All"}} →</a></div>
+      {{if .Body.Upcoming}}
+      <table>
+        <tbody>
+          {{range .Body.Upcoming}}
+          <tr>
+            <td style="white-space:nowrap">{{call $.Date .DueDate}}{{if .Event.Overdue}} <span class="badge badge-overdue">{{call $.T "overdue"}}</span>{{end}}</td>
+            <td><a href="{{.Href}}">{{call $.T .Description}}</a><span class="sub">{{.Company}}</span></td>
+            <td class="money {{if eq .Kind "payable"}}neg{{else}}pos{{end}}">{{call $.Money .Amount}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{else}}<p class="empty">{{call .T "Nothing due in the next 30 days."}}</p>{{end}}
+    </div>
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0; display:flex; justify-content:space-between;"><h2>{{call .T "Accounts"}}</h2><a class="small" href="/admin/erp/account-report">{{call .T "By company"}} →</a></div>
+      {{if .Body.Accounts}}
+      <table>
+        <tbody>
+          {{range .Body.Accounts}}
+          <tr>
+            <td>{{.Account.Name}}{{range .Shares}}<span class="sub">{{.Company}}: {{call $.Money .Amount}}</span>{{end}}</td>
+            <td class="money {{call $.Sign .Balance.Total}}"><strong>{{call $.Money .Balance.Total}}</strong>{{if .Balance.Pending}}<span class="sub">{{call $.T "pending"}} {{call $.Money .Balance.Pending}}</span>{{end}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:1rem;">
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0;"><h2>{{call .T "Companies"}}</h2></div>
+      {{if .Body.Companies}}
+      <table>
+        <thead><tr><th>{{call .T "Company"}}</th><th class="right">{{call .T "Cash"}}</th><th class="right">{{call .T "Card debt"}}</th></tr></thead>
+        <tbody>{{range .Body.Companies}}<tr><td><a href="/admin/erp/company-report?company={{.Company.Id}}">{{.Company.Name}}</a></td><td class="money {{call $.Sign .Cash}}">{{call $.Money .Cash}}</td><td class="money">{{call $.Money .Debt}}</td></tr>{{end}}</tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0; display:flex; justify-content:space-between;"><h2>{{call .T "Credit cards"}}</h2><a class="small" href="/admin/erp/list-credit-cards">{{call .T "All"}} →</a></div>
+      {{if .Body.Cards}}
+      <table>
+        <thead><tr><th>{{call .T "Card"}}</th><th class="right">{{call .T "Open invoice"}}</th><th class="right">{{call .T "Debt"}}</th></tr></thead>
+        <tbody>{{range .Body.Cards}}<tr><td><a href="/admin/erp/list-card-invoices/{{.Summary.Card.Id}}">{{.Summary.Card.Name}}</a>{{if .Summary.HasNextDue}}<span class="sub">{{call $.Tf "%s due %s" (call $.Money .Summary.NextDue.Remaining) (call $.Date .Summary.NextDue.Due)}}</span>{{end}}</td><td class="money">{{call $.Money .Summary.Current.Charges}}</td><td class="money">{{call $.Money .Summary.Debt}}</td></tr>{{end}}</tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+  </div>
+</main>
+{{end}}

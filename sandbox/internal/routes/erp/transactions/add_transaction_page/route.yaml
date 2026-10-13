@@ -1,0 +1,40 @@
+category: Transactions
+methods:
+    - GET
+parameters:
+    - id: Type
+      key: type
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Account
+      key: account
+      sources:
+        - query
+      type: string
+    - id: CardInvoice
+      key: card-invoice
+      sources:
+        - query
+      type: string
+    - id: Next
+      key: next
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminManageAddTransaction
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-transaction
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds a transaction

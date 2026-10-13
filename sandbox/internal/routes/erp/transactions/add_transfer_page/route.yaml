@@ -1,0 +1,45 @@
+category: Transactions
+methods:
+    - GET
+parameters:
+    - id: FromAccount
+      key: from-account
+      sources:
+        - query
+      type: string
+    - id: ToAccount
+      key: to-account
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Amount
+      key: amount
+      sources:
+        - query
+      type: string
+    - id: CardInvoice
+      key: card-invoice
+      sources:
+        - query
+      type: string
+    - id: Next
+      key: next
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminManageAddTransfer
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-transfer
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds a transfer

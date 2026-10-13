@@ -1,0 +1,26 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back to companies"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <div class="form-group">
+        <label for="name">{{call .T "Name"}}</label>
+        <input type="text" id="name" name="name" value="{{.Body.Fields.Name}}" required maxlength="120" placeholder="{{call .T "e.g. Personal, ACME Ltd."}}" autofocus>
+      </div>
+      <div class="form-group">
+        <label for="document">{{call .T "Document"}} <span class="muted">({{call .T "optional"}})</span></label>
+        <input type="text" id="document" name="document" value="{{.Body.Fields.Document}}" maxlength="40" placeholder="{{call .T "Tax id, such as a CNPJ or CPF"}}">
+      </div>
+      <div class="form-group">
+        <label for="notes">{{call .T "Notes"}}</label>
+        <textarea id="notes" name="notes" maxlength="2000">{{.Body.Fields.Notes}}</textarea>
+      </div>
+      {{template "status-select" .}}
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{template "form-remove" .}}
+</main>
+{{end}}

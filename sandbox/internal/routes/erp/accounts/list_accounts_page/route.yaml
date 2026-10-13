@@ -1,0 +1,35 @@
+category: Accounts
+methods:
+    - GET
+parameters:
+    - id: Search
+      key: search
+      sources:
+        - query
+      type: string
+    - id: Kind
+      key: kind
+      sources:
+        - query
+      type: string
+    - id: Status
+      key: status
+      sources:
+        - query
+      type: string
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpListAccounts
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/list-accounts
+priority: 100
+private: true
+response-type: text/html
+summary: Lists the accounts

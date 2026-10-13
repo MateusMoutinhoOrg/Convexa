@@ -1,0 +1,26 @@
+{{define "content"}}
+<div class="auth">
+  <div class="card">
+    <div class="brand"><span class="brand-mark">C</span>Convexa</div>
+    <p class="muted" style="text-align:center; margin-bottom: 1.6rem;">{{call .T "Sign in to manage your finances"}}</p>
+
+    {{if .Body.Error}}<div class="alert" role="alert">{{.Body.Error}}</div>{{end}}
+
+    <form action="/admin/login" method="POST">
+      <div class="form-group">
+        <label for="username">{{call .T "Email or username"}}</label>
+        <input type="text" id="username" name="username" value="{{.Body.Username}}" required autocomplete="username" autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">{{call .T "Password"}}</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; padding: 0.75rem;">{{call .T "Sign in"}}</button>
+    </form>
+
+    <div class="lang-switch">
+      {{range .Languages}}<a href="/admin/login?lang={{.Code}}"{{if .Active}} class="on"{{end}} title="{{.Name}}">{{.Code}}</a>{{end}}
+    </div>
+  </div>
+</div>
+{{end}}

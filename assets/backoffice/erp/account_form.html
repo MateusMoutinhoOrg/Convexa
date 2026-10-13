@@ -1,0 +1,83 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back to accounts"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="name">{{call .T "Name"}}</label>
+          <input type="text" id="name" name="name" value="{{.Body.Fields.Name}}" required maxlength="120" placeholder="{{call .T "e.g. Main checking, Visa Gold"}}" autofocus>
+        </div>
+        <div class="form-group">
+          <label for="kind">{{call .T "Kind"}}</label>
+          <select id="kind" name="kind">
+            {{range .Body.Kinds}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="institution">{{call .T "Institution"}} <span class="muted">({{call .T "optional"}})</span></label>
+          <input type="text" id="institution" name="institution" value="{{.Body.Fields.Institution}}" maxlength="120" placeholder="{{call .T "Bank or broker"}}">
+        </div>
+      </div>
+      <fieldset data-show-when="kind=credit-card" style="margin-top:1.1rem;">
+        <legend>{{call .T "Credit card"}}</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="credit-limit">{{call .T "Credit limit"}}</label>
+            <input type="text" inputmode="decimal" class="amount-input" id="credit-limit" name="credit-limit" value="{{.Body.CreditLimit}}" placeholder="{{call .T "0.00"}}">
+          </div>
+          <div class="form-group">
+            <label for="payment-account">{{call .T "Pays its invoices from"}}</label>
+            <select id="payment-account" name="payment-account">
+              <option value="">{{call .T "Choose when paying"}}</option>
+              {{range .Body.PaymentOptions}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="closing-day">{{call .T "Closing day"}}</label>
+            <input type="number" min="1" max="31" id="closing-day" name="closing-day" value="{{if .Body.Fields.ClosingDay}}{{.Body.Fields.ClosingDay}}{{end}}">
+            <p class="hint">{{call .T "Purchases up to this day land on this month's invoice; later ones on the next."}}</p>
+          </div>
+          <div class="form-group">
+            <label for="due-day">{{call .T "Due day"}}</label>
+            <input type="number" min="1" max="31" id="due-day" name="due-day" value="{{if .Body.Fields.DueDay}}{{.Body.Fields.DueDay}}{{end}}">
+            <p class="hint">{{call .T "When it comes before the closing day, the invoice is due the next month."}}</p>
+          </div>
+        </div>
+      </fieldset>
+      {{if not .Body.Form.Id}}
+      <fieldset style="margin-top:1.1rem;">
+        <legend>{{call .T "Opening balance"}} ({{call .T "optional"}})</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="opening-balance">{{call .T "Amount"}}</label>
+            <input type="text" inputmode="decimal" class="amount-input" id="opening-balance" name="opening-balance" value="{{.Body.OpeningBalance}}" placeholder="{{call .T "0.00"}}">
+            <p class="hint">{{call .T "Negative for an overdraft or a card's existing debt. Other companies' shares can be added later as adjustments."}}</p>
+          </div>
+          <div class="form-group">
+            <label for="opening-company">{{call .T "Company"}}</label>
+            <select id="opening-company" name="opening-company">
+              <option value="">—</option>
+              {{range .Body.CompanyOptions}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="opening-date">{{call .T "Date"}}</label>
+            <input type="date" id="opening-date" name="opening-date" value="{{.Body.OpeningDate}}">
+          </div>
+        </div>
+      </fieldset>
+      {{end}}
+      <div class="form-group" style="margin-top:1.1rem;">
+        <label for="notes">{{call .T "Notes"}}</label>
+        <textarea id="notes" name="notes" maxlength="2000">{{.Body.Fields.Notes}}</textarea>
+      </div>
+      {{template "status-select" .}}
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{template "form-remove" .}}
+</main>
+{{end}}

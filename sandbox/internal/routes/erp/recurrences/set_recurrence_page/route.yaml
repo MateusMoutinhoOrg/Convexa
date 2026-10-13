@@ -1,0 +1,19 @@
+category: Recurrences
+methods:
+    - GET
+paths:
+    - end: 2
+      id: AdminManageSetRecurrence
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/set-recurrence
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Shows the form that edits a recurrence

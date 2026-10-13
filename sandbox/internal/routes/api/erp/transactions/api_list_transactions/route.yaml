@@ -1,0 +1,52 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            account:
+                type: integer
+            card-invoice:
+                type: string
+            category:
+                type: integer
+            company:
+                type: integer
+            date-field:
+                type: string
+            from:
+                type: string
+            installment-group:
+                type: integer
+            limit:
+                type: integer
+            page:
+                type: integer
+            recurrence:
+                type: integer
+            search:
+                type: string
+            status:
+                type: string
+            third-party:
+                type: integer
+            to:
+                type: string
+            type:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Transactions
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/list-transactions -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"search":"","company":0,"account":0,"category":0,"third-party":0,"type":"","status":"","from":"2026-10-01","to":"2026-10-31","date-field":"date","card-invoice":"","installment-group":0,"recurrence":0,"page":1,"limit":100}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpListTransactions
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/list-transactions
+priority: 100
+response-type: application/json
+summary: Lists the transactions, newest first

@@ -1,0 +1,20 @@
+category: Credit cards
+methods:
+    - GET
+parameters:
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpListCreditCards
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/list-credit-cards
+priority: 100
+private: true
+response-type: text/html
+summary: Lists the credit cards and their current invoices

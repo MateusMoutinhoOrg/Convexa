@@ -1,0 +1,26 @@
+{{define "content"}}
+<main class="narrow">
+  <section class="head"><div><h1>{{call .T "Settings"}}</h1><p class="muted">{{call .T "Only root users see and change these."}}</p></div></section>
+  {{template "notice" .}}
+  <div class="card">
+    {{if .Body.Error}}<div class="alert" role="alert">{{call .T .Body.Error}}</div>{{end}}
+    <form action="/admin/root/settings" method="POST">
+      <div class="form-group">
+        <label for="currency">{{call .T "Currency"}}</label>
+        <input type="text" id="currency" name="currency" value="{{.Body.Currency}}" maxlength="3" required style="text-transform: uppercase; max-width: 160px;">
+        <p class="hint">{{call .T "The three-letter code of the currency every amount is kept in, such as BRL, USD or EUR."}}</p>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">{{call .T "Save changes"}}</button></div>
+    </form>
+  </div>
+  <div class="card">
+    <h2>{{call .T "Server"}}</h2>
+    <dl class="facts">
+      <dt>{{call .T "Today"}}</dt><dd>{{call .Date .Body.Today}}</dd>
+      <dt>{{call .T "UTC offset"}}</dt><dd>{{.Body.UtcOffset}} min</dd>
+      <dt>{{call .T "Recurrence horizon"}}</dt><dd>{{call .Tf "%d days" .Body.HorizonDays}}</dd>
+    </dl>
+    <p class="hint" style="margin-top:1rem;">{{call .T "These come from the start-server flags --utc-offset and --recurrence-horizon."}}</p>
+  </div>
+</main>
+{{end}}

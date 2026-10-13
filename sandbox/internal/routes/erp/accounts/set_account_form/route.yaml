@@ -1,0 +1,51 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            closing-day:
+                type: string
+            credit-limit:
+                type: string
+            due-day:
+                type: string
+            institution:
+                type: string
+            kind:
+                type: string
+            name:
+                type: string
+            notes:
+                type: string
+            opening-balance:
+                type: string
+            opening-company:
+                type: string
+            opening-date:
+                type: string
+            payment-account:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Accounts
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManageSetAccount
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/set-account
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Edits an account

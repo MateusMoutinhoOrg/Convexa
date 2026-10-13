@@ -1,0 +1,30 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            document:
+                type: string
+            name:
+                type: string
+            notes:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Companies
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminManageAddCompany
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-company
+priority: 100
+private: true
+response-type: text/html
+summary: Adds a company

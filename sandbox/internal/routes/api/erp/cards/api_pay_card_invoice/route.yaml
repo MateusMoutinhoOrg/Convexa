@@ -1,0 +1,32 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            date:
+                type: string
+            from-account:
+                type: integer
+            id:
+                type: integer
+            month:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Credit cards
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/pay-card-invoice -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":3,"month":"2026-10","from-account":1,"date":"2026-10-10","status":"settled"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManagePayCardInvoice
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/pay-card-invoice
+priority: 100
+response-type: application/json
+summary: Pays what is left of a credit card invoice, one transfer per company

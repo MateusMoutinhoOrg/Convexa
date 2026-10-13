@@ -1,0 +1,31 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            next:
+                type: string
+            settled-date:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Transactions
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManageSettleTransaction
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/settle-transaction
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Marks a transaction paid or received

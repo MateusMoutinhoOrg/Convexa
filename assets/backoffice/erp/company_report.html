@@ -1,0 +1,62 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{if .Body.Name}}{{.Body.Name}}{{else}}{{call .T "Every company"}}{{end}}</h1>
+      <p class="muted">{{call .T "Income and expense by category over the period, by the date each transaction was entered for; balances as of today."}}</p>
+    </div>
+  </section>
+  <form class="card filters" action="/admin/erp/company-report" method="GET">
+    <div class="field grow"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "Every company"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="from">{{call .T "From"}}</label><input type="date" id="from" name="from" value="{{.Body.From}}"></div>
+    <div class="field"><label for="to">{{call .T "To"}}</label><input type="date" id="to" name="to" value="{{.Body.To}}"></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Show"}}</button></div>
+  </form>
+  {{with .Body.Report}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call $.T "Income"}}</div><div class="value pos">{{call $.Money .Income}}</div><div class="hint">+ {{call $.Money .PendingIncome}} {{call $.T "pending"}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Expense"}}</div><div class="value neg">{{call $.Money .Expense}}</div><div class="hint">+ {{call $.Money .PendingExpense}} {{call $.T "pending"}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Result"}}</div><div class="value {{call $.Sign $.Body.Result}}">{{call $.Money $.Body.Result}}</div><div class="hint">{{call $.T "income less expense, pending included"}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Cash today"}}</div><div class="value {{call $.Sign $.Body.Cash}}">{{call $.Money $.Body.Cash}}</div><div class="hint">{{call $.T "card debt"}} {{call $.Money $.Body.Debt}}</div></div>
+  </div>
+  {{end}}
+  <div class="grid-2">
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0;"><h2>{{call .T "Income by category"}}</h2></div>
+      {{if .Body.Income}}
+      <table>
+        <thead><tr><th>{{call .T "Category"}}</th><th class="right">{{call .T "Realized"}}</th><th class="right">{{call .T "Pending"}}</th><th class="right">%</th></tr></thead>
+        <tbody>{{range .Body.Income}}<tr><td>{{call $.T .Name}}</td><td class="money pos">{{call $.Money .Total.Realized}}</td><td class="money muted">{{call $.Money .Total.Pending}}</td><td class="num">{{.Share}}%</td></tr>{{end}}</tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+    <div class="card table-card">
+      <div style="padding: 1.1rem 1rem 0;"><h2>{{call .T "Expense by category"}}</h2></div>
+      {{if .Body.Expense}}
+      <table>
+        <thead><tr><th>{{call .T "Category"}}</th><th class="right">{{call .T "Realized"}}</th><th class="right">{{call .T "Pending"}}</th><th class="right">%</th></tr></thead>
+        <tbody>{{range .Body.Expense}}<tr><td>{{call $.T .Name}}</td><td class="money neg">{{call $.Money .Total.Realized}}</td><td class="money muted">{{call $.Money .Total.Pending}}</td><td class="num">{{.Share}}%</td></tr>{{end}}</tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+  </div>
+  <h2 class="section">{{call .T "Balances today"}}</h2>
+  <div class="card table-card">
+    {{if .Body.Accounts}}
+    <table>
+      <thead><tr><th>{{call .T "Account"}}</th><th class="right">{{if .Body.Name}}{{call .Tf "Share of %s" .Body.Name}}{{else}}{{call .T "Balance"}}{{end}}</th><th class="right">{{call .T "Whole account"}}</th></tr></thead>
+      <tbody>{{range .Body.Accounts}}<tr><td>{{.Account}}{{if .IsCard}} <span class="badge">{{call $.T "credit-card"}}</span>{{end}}</td><td class="money {{call $.Sign .Amount}}"><strong>{{call $.Money .Amount}}</strong></td><td class="money muted">{{call $.Money .Total}}</td></tr>{{end}}</tbody>
+    </table>
+    {{else}}<p class="empty">—</p>{{end}}
+  </div>
+  {{if .Body.Budgets}}
+  <h2 class="section">{{call .T "Budgets of the period"}}</h2>
+  <div class="card table-card">
+    <table>
+      <thead><tr><th>{{call .T "Category"}}</th><th>{{call .T "Period"}}</th><th class="right">{{call .T "Budget"}}</th><th class="right">{{call .T "Committed"}}</th><th>%</th></tr></thead>
+      <tbody>{{range .Body.Budgets}}<tr><td>{{.Category}}</td><td>{{call $.Date .Line.Budget.PeriodStart}} – {{call $.Date .Line.Budget.PeriodEnd}}</td><td class="money">{{call $.Money .Line.Budget.Amount}}</td><td class="money">{{call $.Money .Line.Committed}}</td><td style="min-width:110px"><div class="meter{{if .Over}} over{{end}}"><span style="width: {{.Meter}}%"></span></div></td></tr>{{end}}</tbody>
+    </table>
+  </div>
+  {{end}}
+</main>
+{{end}}

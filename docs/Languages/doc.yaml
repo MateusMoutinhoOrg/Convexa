@@ -1,0 +1,4 @@
+description: 'English first, Portuguese on request: how pages and the api pick a language, and how a text is translated'
+name: Languages
+themes:
+    - reference

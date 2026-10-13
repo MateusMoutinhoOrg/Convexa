@@ -1,0 +1,30 @@
+category: Reports
+methods:
+    - GET
+parameters:
+    - id: Months
+      key: months
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Account
+      key: account
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpProjection
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/projection
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the projected balance, with and without the budgets

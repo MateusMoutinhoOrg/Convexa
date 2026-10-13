@@ -1,0 +1,30 @@
+category: Companies
+methods:
+    - GET
+parameters:
+    - id: Search
+      key: search
+      sources:
+        - query
+      type: string
+    - id: Status
+      key: status
+      sources:
+        - query
+      type: string
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpListCompanies
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/list-companies
+priority: 100
+private: true
+response-type: text/html
+summary: Lists the companies

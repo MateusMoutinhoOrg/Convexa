@@ -1,0 +1,19 @@
+body:
+    content-type: application/json
+    max-bytes: 1048576
+    type: json
+category: Recurrences
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/generate-recurrences -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageGenerateRecurrences
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/generate-recurrences
+priority: 100
+response-type: application/json
+summary: Writes the occurrences of every recurrence up to the horizon

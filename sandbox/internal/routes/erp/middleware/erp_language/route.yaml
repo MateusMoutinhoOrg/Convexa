@@ -1,0 +1,31 @@
+category: Middleware
+methods:
+    - ANY
+parameters:
+    - description: 'the language to show the page or answer the call in: en or pt'
+      id: Lang
+      key: lang
+      sources:
+        - query
+      type: string
+    - description: the language a former ?lang= chose
+      id: ConvexaLang
+      key: convexa_lang
+      sources:
+        - cookie
+      type: string
+    - id: AcceptLanguage
+      key: accept-language
+      sources:
+        - header
+      type: string
+paths:
+    - end: -1
+      id: Root
+      start: 0
+      trigger:
+        type: prefix
+        value: /
+priority: 5
+response-type: text/plain
+summary: 'Reads the language a request asks for: ?lang=, the convexa_lang cookie or Accept-Language'

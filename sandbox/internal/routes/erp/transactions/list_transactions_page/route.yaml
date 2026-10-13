@@ -1,0 +1,90 @@
+category: Transactions
+methods:
+    - GET
+parameters:
+    - id: Search
+      key: search
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Account
+      key: account
+      sources:
+        - query
+      type: string
+    - id: Category
+      key: category
+      sources:
+        - query
+      type: string
+    - id: ThirdParty
+      key: third-party
+      sources:
+        - query
+      type: string
+    - id: Type
+      key: type
+      sources:
+        - query
+      type: string
+    - id: Status
+      key: status
+      sources:
+        - query
+      type: string
+    - id: From
+      key: from
+      sources:
+        - query
+      type: string
+    - id: To
+      key: to
+      sources:
+        - query
+      type: string
+    - id: DateField
+      key: date-field
+      sources:
+        - query
+      type: string
+    - id: CardInvoice
+      key: card-invoice
+      sources:
+        - query
+      type: string
+    - id: InstallmentGroup
+      key: installment-group
+      sources:
+        - query
+      type: string
+    - id: Recurrence
+      key: recurrence
+      sources:
+        - query
+      type: string
+    - id: Page
+      key: page
+      sources:
+        - query
+      type: string
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpListTransactions
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/list-transactions
+priority: 100
+private: true
+response-type: text/html
+summary: Lists the transactions

@@ -1,0 +1,51 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .Tf "Hello, %s" .Viewer.Username}}</h1>
+      <p class="muted">{{call .T "Your account, your session and where to go next."}}</p>
+    </div>
+    <div class="actions"><a class="btn btn-primary" href="/admin/erp/dashboard">{{call .T "Open the dashboard"}}</a></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>{{call .T "Account"}}</h2>
+      <dl class="facts">
+        <dt>{{call .T "Username"}}</dt><dd>{{.Viewer.Username}}</dd>
+        <dt>{{call .T "Email"}}</dt><dd>{{.Viewer.Email}}</dd>
+        <dt>{{call .T "Role"}}</dt><dd><span class="badge badge-{{.Viewer.Role}}">{{call .T .Viewer.Role}}</span></dd>
+        <dt>{{call .T "User id"}}</dt><dd>{{.Body.Id}}</dd>
+      </dl>
+    </article>
+
+    <article class="card">
+      <h2>{{call .T "What your role allows"}}</h2>
+      <p class="muted">
+        {{if .Viewer.IsRoot}}{{call .T "As root you control everything: the financial records, the users, the API tokens, the backups and the settings."}}
+        {{else if .Viewer.CanManage}}{{call .T "As admin you manage every financial record: companies, accounts, third parties, transactions, budgets and cards."}}
+        {{else}}{{call .T "As a basic user you can see every transaction, report, company and account, but not change them."}}{{end}}
+      </p>
+    </article>
+
+    <article class="card">
+      <h2>{{call .T "Session"}}</h2>
+      <p class="muted">{{call .Tf "Your session lasts %d minutes from sign-in. After that you will be asked to sign in again." .Body.SessionMinutes}}</p>
+    </article>
+
+    <article class="card">
+      <h2>{{call .T "Language"}}</h2>
+      <p class="muted">{{call .T "Use the EN / PT switch at the top of every page. Your choice is saved to your account."}}</p>
+    </article>
+
+    <article class="card">
+      <h2>{{call .T "API tokens"}}</h2>
+      <p class="muted">{{call .T "Tokens let scripts and other systems call the Convexa API as you, with your role."}}</p>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="/admin/list-backoffice-api-tokens">{{call .T "View tokens"}}</a>
+        <a class="btn" href="/admin/add-backoffice-api-token">{{call .T "New token"}}</a>
+      </div>
+    </article>
+  </section>
+</main>
+{{end}}

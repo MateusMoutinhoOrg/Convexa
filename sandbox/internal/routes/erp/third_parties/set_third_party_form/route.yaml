@@ -1,0 +1,43 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            address:
+                type: string
+            document:
+                type: string
+            email:
+                type: string
+            name:
+                type: string
+            notes:
+                type: string
+            phone:
+                type: string
+            role:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Third parties
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManageSetThirdParty
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/set-third-party
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Edits a third party

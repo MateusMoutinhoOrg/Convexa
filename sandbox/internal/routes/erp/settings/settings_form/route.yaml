@@ -1,0 +1,24 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            currency:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Settings
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminRootSettings
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/root/settings
+priority: 100
+private: true
+response-type: text/html
+summary: Saves the settings

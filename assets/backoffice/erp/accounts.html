@@ -1,0 +1,65 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Accounts"}}</h1>
+      <p class="muted">{{call .T "Checking and savings accounts, investments, wallets and credit cards. Several companies may share an account: its balance is the cash it holds, split by company below."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-account">+ {{call .T "Add account"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "Cash listed"}}</div><div class="value {{call .Sign .Body.Cash}}">{{call .Money .Body.Cash}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Card debt listed"}}</div><div class="value">{{call .Money .Body.Debt}}</div></div>
+  </div>
+  <form class="card filters" action="/admin/erp/list-accounts" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Search}}" placeholder="{{call .T "Name or institution"}}">
+    </div>
+    <div class="field">
+      <label for="kind">{{call .T "Kind"}}</label>
+      <select id="kind" name="kind">
+        <option value="">{{call .T "All"}}</option>
+        {{range .Body.Kinds}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+      </select>
+    </div>
+    {{template "status-filter" .}}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/erp/list-accounts">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>{{call .T "Account"}}</th><th>{{call .T "Kind"}}</th><th>{{call .T "By company"}}</th>
+        <th class="right">{{call .T "Balance"}}</th><th class="right">{{call .T "Pending"}}</th><th class="right">{{call .T "Actions"}}</th>
+      </tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr{{if eq .Account.Status "archived"}} class="dim"{{end}}>
+          <td><strong>{{.Account.Name}}</strong>{{if .Account.Institution}}<span class="sub">{{.Account.Institution}}</span>{{end}}</td>
+          <td><span class="badge">{{call $.T .Account.Kind}}</span>{{if eq .Account.Status "archived"}} <span class="badge badge-archived">{{call $.T "archived"}}</span>{{end}}
+            {{if .IsCard}}<span class="sub">{{call $.Tf "Closes on day %d, due on day %d" .Account.ClosingDay .Account.DueDay}}{{if .PaymentAccount}} · {{call $.Tf "paid from %s" .PaymentAccount}}{{end}}</span>{{end}}</td>
+          <td>{{range .Shares}}<span class="sub">{{.Company}}: <span class="{{call $.Sign .Amount}}">{{call $.Money .Amount}}</span></span>{{else}}<span class="muted small">—</span>{{end}}</td>
+          <td class="money {{call $.Sign .Balance.Total}}"><strong>{{call $.Money .Balance.Total}}</strong></td>
+          <td class="money muted">{{if .Balance.Pending}}{{call $.Money .Balance.Pending}}{{end}}</td>
+          <td><div class="row-actions">
+            {{if .IsCard}}<a class="btn btn-small" href="/admin/erp/list-card-invoices/{{.Account.Id}}">{{call $.T "Invoices"}}</a>{{end}}
+            <a class="btn btn-small" href="/admin/erp/account-report?account={{.Account.Id}}">{{call $.T "Statement"}}</a>
+            {{if $.Viewer.CanManage}}<a class="btn btn-small" href="/admin/manage/set-account/{{.Account.Id}}">{{call $.T "Edit"}}</a>{{end}}
+          </div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No accounts yet."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-account">{{call .T "Add the first one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

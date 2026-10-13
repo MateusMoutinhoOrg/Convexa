@@ -1,0 +1,13 @@
+category: Middleware
+methods:
+    - ANY
+paths:
+    - end: -1
+      id: ApiAdminManage
+      start: 0
+      trigger:
+        type: prefix
+        value: /api/admin/manage
+priority: 11
+response-type: application/json
+summary: Lets only the tokens of root and admin users reach /api/admin/manage

@@ -1,0 +1,72 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "By account"}}</h1>
+      <p class="muted">{{call .T "The absolute balance of each account — the cash it holds — and each company's share of it. Choose an account for its statement."}}</p>
+    </div>
+  </section>
+  <form class="card filters" action="/admin/erp/account-report" method="GET">
+    <div class="field"><label for="date">{{call .T "Balances on"}}</label><input type="date" id="date" name="date" value="{{.Body.Date}}"></div>
+    <div class="field grow"><label for="account">{{call .T "Statement of"}}</label><select id="account" name="account"><option value="">—</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "Whole account"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="from">{{call .T "From"}}</label><input type="date" id="from" name="from" value="{{.Body.From}}"></div>
+    <div class="field"><label for="to">{{call .T "To"}}</label><input type="date" id="to" name="to" value="{{.Body.To}}"></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Show"}}</button></div>
+  </form>
+  <div class="card table-card">
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Account"}}</th>{{range .Body.Columns}}<th class="right">{{.}}</th>{{end}}<th class="right">{{call .T "Absolute"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr>
+          <td><a href="/admin/erp/account-report?account={{.Account.Id}}">{{.Account.Name}}</a>{{if .IsCard}} <span class="badge">{{call $.T "credit-card"}}</span>{{end}}</td>
+          {{range .Cells}}<td class="money {{call $.Sign .Amount}}">{{if .Present}}{{call $.Money .Amount}}{{else}}<span class="muted">—</span>{{end}}</td>{{end}}
+          <td class="money {{call $.Sign .Total}}"><strong>{{call $.Money .Total}}</strong></td>
+        </tr>
+        {{end}}
+      </tbody>
+      <tfoot>
+        <tr><td>{{call .T "Cash"}}</td>{{range .Body.ColumnCash}}<td class="money">{{call $.Money .}}</td>{{end}}<td class="money">{{call .Money .Body.Cash}}</td></tr>
+        <tr><td>{{call .T "Card debt"}}</td>{{range .Body.ColumnDebt}}<td class="money">{{call $.Money .}}</td>{{end}}<td class="money">{{call .Money .Body.Debt}}</td></tr>
+      </tfoot>
+    </table>
+    </div>
+  </div>
+  {{if .Body.HasStatement}}
+  {{with .Body.Statement}}
+  <h2 class="section">{{call $.T "Statement"}} · {{.Account.Name}}</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call $.T "Opening balance"}}</div><div class="value">{{call $.Money .Opening}}</div><div class="hint">{{call $.Date .From}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Inflows"}}</div><div class="value pos">{{call $.Money .Inflows}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Outflows"}}</div><div class="value neg">{{call $.Money .Outflows}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Closing balance"}}</div><div class="value {{call $.Sign .Closing}}">{{call $.Money .Closing}}</div><div class="hint">{{call $.Date .To}}</div></div>
+  </div>
+  {{end}}
+  <div class="card table-card">
+    {{if .Body.Lines}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Settled"}}</th><th>{{call .T "Description"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Category"}}</th><th class="right">{{call .T "Amount"}}</th><th class="right">{{call .T "Balance"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Lines}}
+        <tr>
+          <td>{{call $.Date .Line.Tx.SettledDate}}</td>
+          <td>{{call $.T .Line.Tx.Description}}{{if .Row.IsTransfer}}<span class="sub">{{if eq .Line.Tx.Type "transfer-out"}}→{{else}}←{{end}} {{.Row.Other}}</span>{{end}}</td>
+          <td>{{.Row.Company}}</td>
+          <td>{{.Row.Category}}</td>
+          <td class="money {{call $.Sign .Line.Tx.Amount}}">{{call $.Money .Line.Tx.Amount}}</td>
+          <td class="money {{call $.Sign .Balance}}"><strong>{{call $.Money .Balance}}</strong></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "Nothing settled on this account in the period."}}</p>
+    {{end}}
+  </div>
+  {{end}}
+</main>
+{{end}}

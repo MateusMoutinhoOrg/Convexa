@@ -1,0 +1,13 @@
+category: Middleware
+methods:
+    - ANY
+paths:
+    - end: -1
+      id: AdminManage
+      start: 0
+      trigger:
+        type: prefix
+        value: /admin/manage
+priority: 11
+response-type: text/html
+summary: Lets only root and admin users reach /admin/manage

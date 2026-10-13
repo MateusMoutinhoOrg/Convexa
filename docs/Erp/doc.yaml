@@ -1,0 +1,4 @@
+description: 'The financial model of Convexa: companies, accounts, transactions, cards, recurrences, budgets, reports and roles'
+name: Erp
+themes:
+    - architecture

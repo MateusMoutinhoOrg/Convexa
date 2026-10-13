@@ -1,0 +1,41 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            amount:
+                type: string
+            category:
+                type: string
+            company:
+                type: string
+            months:
+                type: string
+            notes:
+                type: string
+            period-end:
+                type: string
+            period-start:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Budgets
+methods:
+    - POST
+paths:
+    - end: 2
+      id: AdminManageSetBudget
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/set-budget
+    - end: 3
+      id: Id
+      start: 3
+      type: integer
+priority: 100
+private: true
+response-type: text/html
+segments: 4
+summary: Edits a budget

@@ -1,0 +1,49 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{.Title}}</h1>
+      <p class="muted">{{call .T "What each company plans to spend or receive per category, set against what its transactions hold — settled and pending."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-budget">+ {{call .T "Add budget"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <form class="card filters" method="GET">
+    <div class="field"><label for="from">{{call .T "From"}}</label><input type="month" id="from" name="from" value="{{.Body.From}}"></div>
+    <div class="field"><label for="to">{{call .T "To"}}</label><input type="month" id="to" name="to" value="{{.Body.To}}"></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field grow"><label for="category">{{call .T "Category"}}</label><select id="category" name="category"><option value="">{{call .T "All"}}</option>{{range .Body.Categories}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button></div>
+  </form>
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "Expense budgets"}}</div><div class="value">{{call .Money .Body.ExpenseBudget}}</div><div class="hint">{{call .T "committed"}} {{call .Money .Body.ExpenseCommitted}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Income budgets"}}</div><div class="value">{{call .Money .Body.IncomeBudget}}</div><div class="hint">{{call .T "committed"}} {{call .Money .Body.IncomeCommitted}}</div></div>
+  </div>
+  <div class="card table-card">
+    {{if .Body.Lines}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Period"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Category"}}</th><th class="right">{{call .T "Budget"}}</th><th class="right">{{call .T "Realized"}}</th><th class="right">{{call .T "Pending"}}</th><th class="right">{{call .T "Remaining"}}</th><th>%</th>{{if .Viewer.CanManage}}<th class="right">{{call .T "Actions"}}</th>{{end}}</tr></thead>
+      <tbody>
+        {{range .Body.Lines}}
+        <tr>
+          <td style="white-space:nowrap">{{call $.Date .Line.Budget.PeriodStart}}<span class="sub">{{call $.Date .Line.Budget.PeriodEnd}}</span></td>
+          <td>{{.Company}}</td>
+          <td>{{.Category}} <span class="badge badge-{{.Line.Type}}">{{call $.T .Line.Type}}</span></td>
+          <td class="money"><strong>{{call $.Money .Line.Budget.Amount}}</strong></td>
+          <td class="money">{{call $.Money .Line.Realized}}</td>
+          <td class="money muted">{{call $.Money .Line.Pending}}</td>
+          <td class="money {{if .Over}}neg{{end}}">{{call $.Money .Line.Remaining}}</td>
+          <td style="min-width:110px"><div class="meter{{if .Over}} over{{end}}"><span style="width: {{.Meter}}%"></span></div><span class="sub">{{.Line.Percent}}%</span></td>
+          {{if $.Viewer.CanManage}}<td><div class="row-actions"><a class="btn btn-small" href="/admin/manage/set-budget/{{.Line.Budget.Id}}">{{call $.T "Edit"}}</a></div></td>{{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No budgets in this period."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-budget">{{call .T "Add one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

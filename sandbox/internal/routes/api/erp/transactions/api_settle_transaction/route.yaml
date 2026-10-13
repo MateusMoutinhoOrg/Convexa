@@ -1,0 +1,26 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            id:
+                type: integer
+            settled-date:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Transactions
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/settle-transaction -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"settled-date":"2026-10-12"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSettleTransaction
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/settle-transaction
+priority: 100
+response-type: application/json
+summary: Marks a transaction paid or received

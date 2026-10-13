@@ -1,0 +1,57 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Recurrences"}}</h1>
+      <p class="muted">{{call .Tf "Incomes and expenses that repeat. Their occurrences of the next %d days are written as pending transactions; the later ones count in the projected balance." .Body.HorizonDays}}</p>
+    </div>
+    {{if .Viewer.CanManage}}
+    <div class="actions">
+      <form action="/admin/manage/generate-recurrences" method="POST"><button type="submit" class="btn">↻ {{call .T "Generate now"}}</button></form>
+      <a class="btn btn-primary" href="/admin/manage/add-recurrence">+ {{call .T "Add recurrence"}}</a>
+    </div>
+    {{end}}
+  </section>
+  {{template "notice" .}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "Monthly income"}}</div><div class="value pos">{{call .Money .Body.MonthlyIncome}}</div><div class="hint">{{call .T "active recurrences, as a monthly average"}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Monthly expense"}}</div><div class="value neg">{{call .Money .Body.MonthlyExpense}}</div></div>
+  </div>
+  <form class="card filters" action="/admin/erp/list-recurrences" method="GET">
+    <div class="field grow"><label for="search">{{call .T "Search"}}</label><input type="search" id="search" name="search" value="{{.Body.Search}}"></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="account">{{call .T "Account"}}</label><select id="account" name="account"><option value="">{{call .T "All"}}</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="type">{{call .T "Type"}}</label><select id="type" name="type"><option value="">{{call .T "All"}}</option>{{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="status">{{call .T "Status"}}</label><select id="status" name="status"><option value="">{{call .T "All"}}</option>{{range .Body.Statuses}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button><a class="btn" href="/admin/erp/list-recurrences">{{call .T "Clear"}}</a></div>
+  </form>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Description"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Account"}}</th><th>{{call .T "Repeats"}}</th><th>{{call .T "Next"}}</th><th>{{call .T "Status"}}</th><th class="right">{{call .T "Amount"}}</th><th class="right">{{call .T "Actions"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr{{if eq .Recurrence.Status "paused"}} class="dim"{{end}}>
+          <td><strong>{{.Recurrence.Description}}</strong><span class="sub">{{.Category}}{{if .ThirdParty}} · {{.ThirdParty}}{{end}}</span></td>
+          <td>{{.Company}}</td>
+          <td>{{.Account}}</td>
+          <td>{{if eq .Recurrence.Interval 1}}{{call $.T .Recurrence.Frequency}}{{else}}{{call $.Tf "every %d" .Recurrence.Interval}} {{call $.T .Recurrence.Frequency}}{{end}}<span class="sub">{{call $.Date .Recurrence.StartDate}}{{if .Recurrence.EndDate}} → {{call $.Date .Recurrence.EndDate}}{{end}}</span></td>
+          <td>{{if .Next}}{{call $.Date .Next}}{{else}}<span class="muted">{{call $.T "ended"}}</span>{{end}}</td>
+          <td><span class="badge badge-{{.Recurrence.Status}}">{{call $.T .Recurrence.Status}}</span></td>
+          <td class="money {{call $.Sign .Amount}}"><strong>{{call $.Money .Amount}}</strong></td>
+          <td><div class="row-actions">
+            <a class="btn btn-small" href="/admin/erp/list-transactions?recurrence={{.Recurrence.Id}}">{{call $.T "Transactions"}}</a>
+            {{if $.Viewer.CanManage}}<a class="btn btn-small" href="/admin/manage/set-recurrence/{{.Recurrence.Id}}">{{call $.T "Edit"}}</a>{{end}}
+          </div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No recurrences yet."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-recurrence">{{call .T "Add the first one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

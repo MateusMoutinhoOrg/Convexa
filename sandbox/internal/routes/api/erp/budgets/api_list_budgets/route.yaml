@@ -1,0 +1,30 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            category:
+                type: integer
+            company:
+                type: integer
+            from:
+                type: string
+            to:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Budgets
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/list-budgets -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"company":0,"category":0,"from":"2026-01-01","to":"2026-12-31"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpListBudgets
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/list-budgets
+priority: 100
+response-type: application/json
+summary: Lists the budgets

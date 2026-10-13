@@ -1,0 +1,141 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Transactions"}}</h1>
+      <p class="muted">{{call .T "Every income, expense, transfer and adjustment of every company."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}
+    <div class="actions">
+      <a class="btn btn-ok" href="/admin/manage/add-transaction?type=income&amp;next={{urlquery .Body.Self}}">+ {{call .T "Income"}}</a>
+      <a class="btn btn-danger" href="/admin/manage/add-transaction?type=expense&amp;next={{urlquery .Body.Self}}">+ {{call .T "Expense"}}</a>
+      <a class="btn" href="/admin/manage/add-transfer?next={{urlquery .Body.Self}}">⇄ {{call .T "Transfer"}}</a>
+      <a class="btn" href="/admin/manage/add-transaction?type=adjustment&amp;next={{urlquery .Body.Self}}">± {{call .T "Adjustment"}}</a>
+    </div>
+    {{end}}
+  </section>
+  {{template "notice" .}}
+
+  <form class="card filters" action="/admin/erp/list-transactions" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Filters.Search}}" placeholder="{{call .T "Description, document or notes"}}">
+    </div>
+    <div class="field">
+      <label for="from">{{call .T "From"}}</label>
+      <input type="date" id="from" name="from" value="{{.Body.Filters.From}}">
+    </div>
+    <div class="field">
+      <label for="to">{{call .T "To"}}</label>
+      <input type="date" id="to" name="to" value="{{.Body.Filters.To}}">
+    </div>
+    <div class="field">
+      <label for="date-field">{{call .T "Dates by"}}</label>
+      <select id="date-field" name="date-field">{{range .Body.DateFields}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="company">{{call .T "Company"}}</label>
+      <select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="account">{{call .T "Account"}}</label>
+      <select id="account" name="account"><option value="">{{call .T "All"}}</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="category">{{call .T "Category"}}</label>
+      <select id="category" name="category"><option value="">{{call .T "All"}}</option>{{range .Body.Categories}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="third-party">{{call .T "Third party"}}</label>
+      <select id="third-party" name="third-party"><option value="">{{call .T "All"}}</option>{{range .Body.ThirdParties}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="type">{{call .T "Type"}}</label>
+      <select id="type" name="type"><option value="">{{call .T "All"}}</option>{{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+    </div>
+    <div class="field">
+      <label for="status">{{call .T "Status"}}</label>
+      <select id="status" name="status"><option value="">{{call .T "All"}}</option>{{range .Body.Statuses}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+    </div>
+    {{if .Body.Filters.CardInvoice}}<input type="hidden" name="card-invoice" value="{{.Body.Filters.CardInvoice}}">{{end}}
+    {{if .Body.Filters.InstallmentGroup}}<input type="hidden" name="installment-group" value="{{.Body.Filters.InstallmentGroup}}">{{end}}
+    {{if .Body.Filters.Recurrence}}<input type="hidden" name="recurrence" value="{{.Body.Filters.Recurrence}}">{{end}}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/erp/list-transactions">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "Inflows"}}</div><div class="value pos">{{call .Money .Body.Inflows}}</div><div class="hint">{{call .Tf "%d transactions" .Body.Count}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Outflows"}}</div><div class="value neg">{{call .Money .Body.Outflows}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Net"}}</div><div class="value {{call .Sign .Body.Net}}">{{call .Money .Body.Net}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Still pending"}}</div><div class="value {{call .Sign .Body.Pending}}">{{call .Money .Body.Pending}}</div></div>
+  </div>
+
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>{{call .T "Date"}}</th><th>{{call .T "Description"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Account"}}</th>
+        <th>{{call .T "Category"}}</th><th>{{call .T "Due"}}</th><th>{{call .T "Status"}}</th><th class="right">{{call .T "Amount"}}</th>
+        {{if .Viewer.CanManage}}<th class="right">{{call .T "Actions"}}</th>{{end}}
+      </tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr>
+          <td style="white-space:nowrap">{{call $.Date .Tx.Date}}</td>
+          <td>
+            {{call $.T .Tx.Description}}
+            {{if .Installment}}<span class="tag">{{.Installment}}</span>{{end}}
+            {{if .Tx.Recurrence}}<span class="tag">↻</span>{{end}}
+            <span class="sub">{{$sep := ""}}{{if .IsTransfer}}{{if eq .Tx.Type "transfer-out"}}→{{else}}←{{end}} {{.Other}}{{$sep = " · "}}{{end}}{{if .ThirdParty}}{{$sep}}{{.ThirdParty}}{{$sep = " · "}}{{end}}{{if .Tx.DocumentNumber}}{{$sep}}{{.Tx.DocumentNumber}}{{$sep = " · "}}{{end}}{{if .Tx.CardInvoice}}{{$sep}}{{call $.T "invoice"}} {{call $.Month .Tx.CardInvoice}}{{end}}</span>
+          </td>
+          <td>{{.Company}}</td>
+          <td>{{.Account}}</td>
+          <td>{{if .Category}}{{.Category}}{{else}}<span class="badge badge-{{.Tx.Type}}">{{call $.T .Tx.Type}}</span>{{end}}</td>
+          <td style="white-space:nowrap">{{call $.Date .Tx.DueDate}}</td>
+          <td>
+            {{if .Overdue}}<span class="badge badge-overdue">{{call $.T "overdue"}}</span>
+            {{else}}<span class="badge badge-{{.Tx.Status}}">{{call $.T .Tx.Status}}</span>{{end}}
+            {{if .Tx.SettledDate}}<span class="sub">{{call $.Date .Tx.SettledDate}}</span>{{end}}
+          </td>
+          <td class="money {{call $.Sign .Tx.Amount}}"><strong>{{call $.Money .Tx.Amount}}</strong></td>
+          {{if $.Viewer.CanManage}}
+          <td><div class="row-actions">
+            {{if .CanSettle}}
+            <form action="/admin/manage/settle-transaction/{{.Tx.Id}}" method="POST">
+              <input type="hidden" name="settled-date" value="{{$.Body.TodayISO}}">
+              <input type="hidden" name="next" value="{{$.Body.Self}}">
+              <button type="submit" class="btn btn-small btn-ok" title="{{call $.T "Mark as paid or received today"}}">✓ {{if gt .Tx.Amount 0}}{{call $.T "Received"}}{{else}}{{call $.T "Paid"}}{{end}}</button>
+            </form>
+            {{end}}
+            {{if .CanUnsettle}}
+            <form action="/admin/manage/unsettle-transaction/{{.Tx.Id}}" method="POST">
+              <input type="hidden" name="next" value="{{$.Body.Self}}">
+              <button type="submit" class="btn btn-small" title="{{call $.T "Mark as pending again"}}">↺</button>
+            </form>
+            {{end}}
+            <a class="btn btn-small" href="{{.EditHref}}?next={{urlquery $.Body.Self}}">{{call $.T "Edit"}}</a>
+          </div></td>
+          {{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No transactions match these filters."}}</p>
+    {{end}}
+  </div>
+
+  <nav class="pager" aria-label="{{call .T "Pages"}}">
+    <span class="muted">{{call .Tf "Page %d of %d" .Body.Page .Body.Pages}}</span>
+    <div class="pages">
+      {{if .Body.PrevHref}}<a class="btn btn-small" href="{{.Body.PrevHref}}">&larr; {{call .T "Previous"}}</a>{{else}}<span class="btn btn-small disabled">&larr; {{call .T "Previous"}}</span>{{end}}
+      {{if .Body.NextHref}}<a class="btn btn-small" href="{{.Body.NextHref}}">{{call .T "Next"}} &rarr;</a>{{else}}<span class="btn btn-small disabled">{{call .T "Next"}} &rarr;</span>{{end}}
+    </div>
+  </nav>
+</main>
+{{end}}

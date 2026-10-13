@@ -1,0 +1,10 @@
+backoffice: true
+cli: true
+database: true
+deps: true
+doc: true
+example: true
+front: true
+readme: true
+sandbox: true
+server: true

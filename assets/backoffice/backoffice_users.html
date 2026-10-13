@@ -1,0 +1,90 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Users"}}</h1>
+      <p class="muted">{{call .T "Everyone who can sign in to Convexa."}}</p>
+    </div>
+    {{if .Viewer.IsRoot}}<div class="actions"><a class="btn btn-primary" href="/admin/root/add-backoffice-user">+ {{call .T "Add user"}}</a></div>{{end}}
+  </section>
+
+  {{template "notice" .}}
+
+  <form class="card filters" action="/admin/list-backoffice-users" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Search}}" placeholder="{{call .T "Username or email"}}">
+    </div>
+    <div class="field">
+      <label for="role">{{call .T "Role"}}</label>
+      <select id="role" name="role">
+        <option value="">{{call .T "All roles"}}</option>
+        <option value="root"{{if eq .Body.Role "root"}} selected{{end}}>{{call .T "root"}}</option>
+        <option value="admin"{{if eq .Body.Role "admin"}} selected{{end}}>{{call .T "admin"}}</option>
+        <option value="basic"{{if eq .Body.Role "basic"}} selected{{end}}>{{call .T "basic"}}</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="limit">{{call .T "Per page"}}</label>
+      <select id="limit" name="limit">
+        {{range .Body.Limits}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Value}}</option>{{end}}
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/list-backoffice-users">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+
+  <div class="card table-card">
+    {{if .Body.Users}}
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{{call .T "Username"}}</th>
+          <th>{{call .T "Email"}}</th>
+          <th>{{call .T "Role"}}</th>
+          {{if .Viewer.IsRoot}}<th class="right">{{call .T "Actions"}}</th>{{end}}
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Body.Users}}
+        <tr>
+          <td class="id">#{{.Id}}</td>
+          <td>{{.Username}}{{if .IsSelf}}<span class="tag">{{call $.T "you"}}</span>{{end}}</td>
+          <td>{{.Email}}</td>
+          <td><span class="badge badge-{{.RoleKind}}">{{call $.T .Role}}</span></td>
+          {{if $.Viewer.IsRoot}}
+          <td>
+            <div class="row-actions">
+              <a class="btn btn-small" href="/admin/root/set-backoffice-user/{{.Id}}">{{call $.T "Edit"}}</a>
+              {{if not .IsSelf}}
+              <form action="/admin/root/remove-backoffice-user/{{.Id}}" method="POST" data-confirm="{{call $.Tf "Remove the user %s? This cannot be undone." .Username}}">
+                <button type="submit" class="btn btn-small btn-danger">{{call $.T "Remove"}}</button>
+              </form>
+              {{end}}
+            </div>
+          </td>
+          {{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No users match these filters."}}</p>
+    {{end}}
+  </div>
+
+  <nav class="pager" aria-label="{{call .T "Pages"}}">
+    <span class="muted">{{if .Body.Total}}{{call .Tf "Showing %d–%d of %d" .Body.From .Body.To .Body.Total}}{{else}}{{call .T "No results"}}{{end}}</span>
+    <div class="pages">
+      {{if .Body.HasPrev}}<a class="btn btn-small" href="/admin/list-backoffice-users?search={{urlquery .Body.Search}}&amp;role={{urlquery .Body.Role}}&amp;limit={{.Body.Limit}}&amp;page={{.Body.PrevPage}}">&larr; {{call .T "Previous"}}</a>{{else}}<span class="btn btn-small disabled">&larr; {{call .T "Previous"}}</span>{{end}}
+      <span class="muted">{{call .Tf "Page %d of %d" .Body.Page .Body.Pages}}</span>
+      {{if .Body.HasNext}}<a class="btn btn-small" href="/admin/list-backoffice-users?search={{urlquery .Body.Search}}&amp;role={{urlquery .Body.Role}}&amp;limit={{.Body.Limit}}&amp;page={{.Body.NextPage}}">{{call .T "Next"}} &rarr;</a>{{else}}<span class="btn btn-small disabled">{{call .T "Next"}} &rarr;</span>{{end}}
+    </div>
+  </nav>
+</main>
+{{end}}

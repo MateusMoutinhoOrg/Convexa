@@ -1,0 +1,75 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    <p class="hint" style="margin:-0.75rem 0 1.25rem;">{{call .T "Moves money from one account to another, or between two companies on the same account. Paying a credit card invoice is a transfer to the card."}}</p>
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <input type="hidden" name="next" value="{{.Body.Values.Next}}">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="from-account">{{call .T "From account"}}</label>
+          <select id="from-account" name="from-account" required><option value="">—</option>{{range .Body.FromAccounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="to-account">{{call .T "To account"}}</label>
+          <select id="to-account" name="to-account" required><option value="">—</option>{{range .Body.ToAccounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="from-company">{{call .T "From company"}}</label>
+          <select id="from-company" name="from-company" required><option value="">—</option>{{range .Body.FromCompanies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="to-company">{{call .T "To company"}}</label>
+          <select id="to-company" name="to-company"><option value="">{{call .T "Same company"}}</option>{{range .Body.ToCompanies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="amount">{{call .T "Amount"}}</label>
+          <input type="text" inputmode="decimal" class="amount-input" id="amount" name="amount" value="{{.Body.Values.Amount}}" required placeholder="{{call .T "0.00"}}">
+        </div>
+        <div class="form-group">
+          <label for="date">{{call .T "Date"}}</label>
+          <input type="date" id="date" name="date" value="{{.Body.Values.Date}}" required>
+        </div>
+        <div class="form-group full">
+          <label for="description">{{call .T "Description"}}</label>
+          <input type="text" id="description" name="description" value="{{.Body.Values.Description}}" maxlength="200" placeholder="{{call .T "Transfer"}}">
+        </div>
+        <div class="form-group">
+          <label for="due-date">{{call .T "Due date"}}</label>
+          <input type="date" id="due-date" name="due-date" value="{{.Body.Values.DueDate}}">
+        </div>
+        <div class="form-group">
+          <label for="card-invoice">{{call .T "Card invoice paid"}} <span class="muted">({{call .T "to a card only"}})</span></label>
+          <input type="month" id="card-invoice" name="card-invoice" value="{{.Body.Values.CardInvoice}}">
+          <p class="hint">{{call .T "Blank: the oldest closed invoice still unpaid."}}</p>
+        </div>
+        <div class="form-group">
+          <label class="inline"><input type="checkbox" id="settled" name="settled" value="on"{{if .Body.Settled}} checked{{end}}> {{call .T "Already done"}}</label>
+        </div>
+        <div class="form-group" data-show-when="settled=on">
+          <label for="settled-date">{{call .T "Settlement date"}}</label>
+          <input type="date" id="settled-date" name="settled-date" value="{{.Body.Values.SettledDate}}">
+        </div>
+        <div class="form-group">
+          <label for="document-number">{{call .T "Document number"}}</label>
+          <input type="text" id="document-number" name="document-number" value="{{.Body.Values.DocumentNumber}}" maxlength="60">
+        </div>
+        <div class="form-group full">
+          <label for="notes">{{call .T "Notes"}}</label>
+          <textarea id="notes" name="notes" maxlength="2000">{{.Body.Values.Notes}}</textarea>
+        </div>
+      </div>
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{if .Body.Form.RemoveAction}}
+  <form class="card" action="{{.Body.Form.RemoveAction}}" method="POST" data-confirm="{{call .T "Remove this transfer, both its legs? This cannot be undone."}}" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <input type="hidden" name="next" value="{{.Body.Values.Next}}">
+    <p class="muted small">{{call .T "Removing deletes both legs of the transfer."}}</p>
+    <button type="submit" class="btn btn-danger">{{call .T "Remove"}}</button>
+  </form>
+  {{end}}
+</main>
+{{end}}

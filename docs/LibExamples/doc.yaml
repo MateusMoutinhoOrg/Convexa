@@ -1,0 +1,5 @@
+description: "Index of every runnable example of convexa as a Go module"
+name: "LibExamples"
+order: 3
+themes:
+  - lib-usage

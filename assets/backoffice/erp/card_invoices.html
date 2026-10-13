@@ -1,0 +1,38 @@
+{{define "content"}}
+<main>
+  <a class="back" href="/admin/erp/list-credit-cards">&larr; {{call .T "Back to credit cards"}}</a>
+  <section class="head">
+    <div>
+      <h1>{{.Body.Card.Name}}</h1>
+      <p class="muted">{{call .Tf "Closes on day %d, due on day %d" .Body.Card.ClosingDay .Body.Card.DueDay}} · {{call .T "Debt"}} {{call .Money .Body.Summary.Debt}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-transaction?type=expense&amp;account={{.Body.Card.Id}}">+ {{call .T "Purchase"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <div class="card table-card">
+    {{if .Body.Invoices}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Invoice"}}</th><th>{{call .T "Closes"}}</th><th>{{call .T "Due"}}</th><th class="right">{{call .T "Charges"}}</th><th class="right">{{call .T "Paid"}}</th><th class="right">{{call .T "Remaining"}}</th><th>{{call .T "Status"}}</th><th class="right">{{call .T "Actions"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Invoices}}
+        <tr>
+          <td><strong>{{call $.Month .Month}}</strong><span class="sub">{{call $.Tf "%d items" .Count}}</span></td>
+          <td>{{call $.Date .Closing}}</td>
+          <td>{{call $.Date .Due}}</td>
+          <td class="money">{{call $.Money .Charges}}</td>
+          <td class="money">{{call $.Money .Paid}}{{if .Scheduled}}<span class="sub">+{{call $.Money .Scheduled}} {{call $.T "scheduled"}}</span>{{end}}</td>
+          <td class="money"><strong>{{call $.Money .Remaining}}</strong></td>
+          <td><span class="badge badge-{{.Status}}">{{call $.T .Status}}</span></td>
+          <td><div class="row-actions"><a class="btn btn-small" href="/admin/erp/card-invoice/{{$.Body.Card.Id}}?month={{call $.ISO .Closing | printf "%.7s"}}">{{call $.T "Open"}}</a></div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No purchases on this card yet."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

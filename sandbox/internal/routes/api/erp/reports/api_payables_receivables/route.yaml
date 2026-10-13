@@ -1,0 +1,36 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            account:
+                type: integer
+            company:
+                type: integer
+            from:
+                type: string
+            kind:
+                type: string
+            overdue:
+                type: boolean
+            third-party:
+                type: integer
+            to:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Reports
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/payables-receivables -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"kind":"","company":0,"account":0,"third-party":0,"from":"","to":"2026-12-31","overdue":false}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpPayablesReceivables
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/payables-receivables
+priority: 100
+response-type: application/json
+summary: Lists what is left to pay and to receive

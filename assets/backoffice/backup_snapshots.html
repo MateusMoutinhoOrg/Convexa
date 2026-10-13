@@ -1,0 +1,92 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Backups"}}</h1>
+      <p class="muted" style="max-width: 760px;">{{call .T "Snapshots of every database. A snapshot is taken in the background; download one as a zip, upload a zip back, restore one over the current data or delete it. A content shared by several snapshots is stored once: deleting a snapshot frees the contents only it held once you optimize the backups size."}}</p>
+    </div>
+    <div class="actions">
+      <form action="/admin/root/optimize-backup-storage" method="POST">
+        <button type="submit" class="btn" title="{{call .T "Remove every stored content no snapshot holds anymore"}}"{{if .Body.Busy}} disabled{{end}}>{{call .T "Optimize backups size"}}</button>
+      </form>
+      <form action="/admin/root/create-backup" method="POST" style="display:flex; gap:0.4rem;">
+        <input type="text" name="name" maxlength="100" pattern="[A-Za-z0-9][A-Za-z0-9._\-]*" placeholder="{{call .T "Name (optional)"}}" aria-label="{{call .T "Snapshot name"}}" style="width: 180px;"{{if .Body.Busy}} disabled{{end}}>
+        <button type="submit" class="btn btn-primary"{{if .Body.Busy}} disabled{{end}}>+ {{call .T "Create snapshot"}}</button>
+      </form>
+    </div>
+  </section>
+
+  {{template "notice" .}}
+  {{if .Body.Busy}}<div class="notice notice-ok" role="status">{{call .T "A backup job is running. This page refreshes until it ends."}}</div>{{end}}
+
+  <form class="card filters" id="snapshot-upload" action="/admin/root/upload-backup" method="POST">
+    <div class="field grow">
+      <label for="snapshot-file">{{call .T "Upload a snapshot"}}</label>
+      <input type="file" id="snapshot-file" accept=".zip,application/zip" required>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn" id="snapshot-upload-button" data-uploading="{{call .T "Uploading…"}}" data-refused="{{call .T "The upload was refused."}}" data-unreachable="{{call .T "The upload could not reach the server."}}">{{call .T "Upload"}}</button>
+    </div>
+    <p class="hint" style="flex-basis:100%;">{{call .Tf "A zip a download of this page built, up to %d MB. It is stored as a new snapshot; nothing is restored until you ask." .Body.MaxUploadMegabytes}}</p>
+    <div class="notice notice-error" id="upload-error" role="status" hidden style="flex-basis:100%;"></div>
+  </form>
+
+  <form class="card filters" action="/admin/root/list-backups" method="GET">
+    <div class="field grow">
+      <label for="prefix">{{call .T "Search by name prefix"}}</label>
+      <input type="search" id="prefix" name="prefix" value="{{.Body.Prefix}}" maxlength="100" placeholder="daily-, pre-restore-, upload-…">
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Search"}}</button>
+      <a class="btn" href="/admin/root/list-backups">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+
+  <div class="card table-card">
+    {{if .Body.Snapshots}}
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{call .T "Name"}}</th>
+          <th>{{call .T "Taken"}}</th>
+          <th>{{call .T "Status"}}</th>
+          <th class="right">{{call .T "Actions"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Body.Snapshots}}
+        <tr>
+          <td><span class="mono">{{.Name}}</span></td>
+          <td>{{.Date}}</td>
+          <td><span class="badge badge-{{.Status}}">{{call $.T .Status}}</span></td>
+          <td>
+            <div class="row-actions">
+              {{if .IsReady}}
+              <a class="btn btn-small" href="/admin/root/download-backup/{{.Id}}">{{call $.T "Download"}}</a>
+              <form action="/admin/root/restore-backup/{{.Id}}" method="POST" data-confirm="{{call $.Tf "Restore the snapshot %s? Every database is replaced by it, after a pre-restore snapshot of the current data, and the site answers 503 until it ends. Users and API tokens are kept as they are unless you ticked the box: restoring them brings back revoked tokens, removed users and old passwords." .Name}}">
+                <label class="inline muted small"><input type="checkbox" name="include-backoffice" value="true"> {{call $.T "users & tokens"}}</label>
+                <button type="submit" class="btn btn-small btn-danger"{{if $.Body.Busy}} disabled{{end}}>{{call $.T "Restore"}}</button>
+              </form>
+              {{else}}
+              <span class="btn btn-small disabled">{{call $.T "Download"}}</span>
+              <span class="btn btn-small btn-danger disabled">{{call $.T "Restore"}}</span>
+              {{end}}
+              <form action="/admin/root/remove-backup/{{.Id}}" method="POST" data-confirm="{{call $.Tf "Delete the snapshot %s? It cannot be restored or downloaded afterwards." .Name}}">
+                <button type="submit" class="btn btn-small btn-danger"{{if $.Body.Busy}} disabled{{end}}>{{call $.T "Delete"}}</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else if .Body.Prefix}}
+    <p class="empty">{{call .T "No snapshot name starts with that prefix. Names are case-sensitive."}}</p>
+    {{else}}
+    <p class="empty">{{call .T "No snapshots yet. Create one to back up every database."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

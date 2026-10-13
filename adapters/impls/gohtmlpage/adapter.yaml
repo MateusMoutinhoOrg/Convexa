@@ -1,0 +1,5 @@
+dep: pagedeps
+help: Html pages parsed from several embedded templates over html/template
+module: ""
+name: gohtmlpage
+origin: project

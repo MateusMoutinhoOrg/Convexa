@@ -1,0 +1,30 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            account:
+                type: integer
+            company:
+                type: integer
+            events:
+                type: boolean
+            months:
+                type: integer
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Reports
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/projection -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"months":12,"company":0,"account":0,"events":true}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpProjection
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/projection
+priority: 100
+response-type: application/json
+summary: Answers the projected balance, with and without the budgets

@@ -1,0 +1,30 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            cards:
+                type: string
+            kind:
+                type: string
+            search:
+                type: string
+            status:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Accounts
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/list-accounts -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"search":"","kind":"","status":"","cards":""}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpListAccounts
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/list-accounts
+priority: 100
+response-type: application/json
+summary: Lists the accounts

@@ -1,0 +1,48 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            account:
+                type: string
+            amount:
+                type: string
+            category:
+                type: string
+            company:
+                type: string
+            description:
+                type: string
+            end-date:
+                type: string
+            frequency:
+                type: string
+            interval:
+                type: string
+            notes:
+                type: string
+            start-date:
+                type: string
+            status:
+                type: string
+            third-party:
+                type: string
+            type:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Recurrences
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminManageAddRecurrence
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-recurrence
+priority: 100
+private: true
+response-type: text/html
+summary: Adds a recurrence

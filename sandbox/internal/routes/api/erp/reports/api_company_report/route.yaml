@@ -1,0 +1,28 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            company:
+                type: integer
+            from:
+                type: string
+            to:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Reports
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/company-report -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"company":1,"from":"2026-10-01","to":"2026-10-31"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpCompanyReport
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/company-report
+priority: 100
+response-type: application/json
+summary: Answers what a company did over a period

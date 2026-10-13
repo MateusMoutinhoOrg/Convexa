@@ -1,0 +1,40 @@
+category: Reports
+methods:
+    - GET
+parameters:
+    - id: Account
+      key: account
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: From
+      key: from
+      sources:
+        - query
+      type: string
+    - id: To
+      key: to
+      sources:
+        - query
+      type: string
+    - id: Date
+      key: date
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpAccountReport
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/account-report
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the balances of every account by company, and an account's statement

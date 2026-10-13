@@ -1,0 +1,48 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            closing-day:
+                type: integer
+            credit-limit:
+                type: integer
+            due-day:
+                type: integer
+            id:
+                type: integer
+            institution:
+                type: string
+            kind:
+                type: string
+            name:
+                type: string
+            notes:
+                type: string
+            opening-balance:
+                type: integer
+            opening-company:
+                type: integer
+            opening-date:
+                type: string
+            payment-account:
+                type: integer
+            status:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Accounts
+examples:
+    - 'curl -X POST localhost:3000/api/admin/manage/set-account -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1,"name":"Main checking","kind":"checking","institution":"My Bank","notes":"","status":"active","credit-limit":0,"closing-day":0,"due-day":0,"payment-account":0,"opening-balance":100000,"opening-company":1,"opening-date":"2026-01-01"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminManageSetAccount
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/manage/set-account
+priority: 100
+response-type: application/json
+summary: Rewrites every field of an account

@@ -1,0 +1,75 @@
+{{define "content"}}
+<main>
+  <a class="back" href="/admin/erp/list-card-invoices/{{.Body.Card.Id}}">&larr; {{call .T "All invoices"}}</a>
+  <section class="head">
+    <div>
+      <h1>{{.Body.Card.Name}} · {{call .Month .Body.Invoice.Month}} <span class="badge badge-{{.Body.Invoice.Status}}" style="vertical-align: middle;">{{call .T .Body.Invoice.Status}}</span></h1>
+      <p class="muted">{{call .Tf "Closes %s · due %s" (call .Date .Body.Invoice.Closing) (call .Date .Body.Invoice.Due)}}</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/admin/erp/card-invoice/{{.Body.Card.Id}}?month={{.Body.Prev}}">&larr;</a>
+      <a class="btn" href="/admin/erp/card-invoice/{{.Body.Card.Id}}?month={{.Body.Next}}">&rarr;</a>
+    </div>
+  </section>
+  {{template "notice" .}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call .T "Charges"}}</div><div class="value">{{call .Money .Body.Invoice.Charges}}</div></div>
+    <div class="kpi"><div class="label">{{call .T "Paid"}}</div><div class="value pos">{{call .Money .Body.Invoice.Paid}}</div>{{if .Body.Invoice.Scheduled}}<div class="hint">+{{call .Money .Body.Invoice.Scheduled}} {{call .T "scheduled"}}</div>{{end}}</div>
+    <div class="kpi"><div class="label">{{call .T "Remaining"}}</div><div class="value {{if gt .Body.Invoice.Remaining 0}}neg{{end}}">{{call .Money .Body.Invoice.Remaining}}</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>{{call .T "By company"}}</h2>
+      {{if .Body.Shares}}
+      <table>
+        <thead><tr><th>{{call .T "Company"}}</th><th class="right">{{call .T "Charges"}}</th><th class="right">{{call .T "Paid"}}</th><th class="right">{{call .T "Remaining"}}</th></tr></thead>
+        <tbody>{{range .Body.Shares}}<tr><td>{{.Company}}</td><td class="money">{{call $.Money .Share.Charges}}</td><td class="money">{{call $.Money .Share.Paid}}</td><td class="money"><strong>{{call $.Money .Share.Remaining}}</strong></td></tr>{{end}}</tbody>
+      </table>
+      {{else}}<p class="empty">—</p>{{end}}
+    </div>
+    {{if and .Viewer.CanManage (gt .Body.ToPay 0)}}
+    <form class="card" action="/admin/manage/pay-card-invoice/{{.Body.Card.Id}}" method="POST">
+      <h2>{{call .T "Pay this invoice"}}</h2>
+      <input type="hidden" name="month" value="{{.Body.MonthISO}}">
+      <p class="muted small" style="margin-bottom:1rem;">{{call .T "Each company pays its own share: one transfer per company from the account below."}}</p>
+      <div class="form-group">
+        <label for="from-account">{{call .T "From account"}}</label>
+        <select id="from-account" name="from-account" required><option value="">—</option>{{range .Body.Payers}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+      </div>
+      <div class="form-group">
+        <label for="date">{{call .T "Date"}}</label>
+        <input type="date" id="date" name="date" value="{{.Body.PayDate}}" required>
+      </div>
+      <div class="form-group">
+        <label class="inline"><input type="checkbox" name="settled" value="on" checked> {{call .T "Already paid (untick to schedule it)"}}</label>
+      </div>
+      <button type="submit" class="btn btn-primary">{{call .Tf "Pay %s" (call .Money .Body.ToPay)}}</button>
+    </form>
+    {{end}}
+  </div>
+  <h2 class="section">{{call .T "Transactions"}}</h2>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Date"}}</th><th>{{call .T "Description"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Category"}}</th><th class="right">{{call .T "Amount"}}</th>{{if .Viewer.CanManage}}<th class="right">{{call .T "Actions"}}</th>{{end}}</tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr>
+          <td>{{call $.Date .Tx.Date}}</td>
+          <td>{{call $.T .Tx.Description}}{{if .Installment}} <span class="tag">{{.Installment}}</span>{{end}}{{if .IsTransfer}}<span class="sub">← {{.Other}}</span>{{end}}{{if .ThirdParty}}<span class="sub">{{.ThirdParty}}</span>{{end}}</td>
+          <td>{{.Company}}</td>
+          <td>{{if .Category}}{{.Category}}{{else}}<span class="badge badge-{{.Tx.Type}}">{{call $.T .Tx.Type}}</span>{{end}}</td>
+          <td class="money {{call $.Sign .Tx.Amount}}">{{call $.Money .Tx.Amount}}{{if .IsTransfer}}<span class="sub">{{call $.T .Tx.Status}}</span>{{end}}</td>
+          {{if $.Viewer.CanManage}}<td><div class="row-actions"><a class="btn btn-small" href="{{.EditHref}}?next={{urlquery $.Body.Self}}">{{call $.T "Edit"}}</a></div></td>{{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "Nothing on this invoice."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

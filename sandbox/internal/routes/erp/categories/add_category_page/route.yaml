@@ -1,0 +1,14 @@
+category: Categories
+methods:
+    - GET
+paths:
+    - end: -1
+      id: AdminManageAddCategory
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-category
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the form that adds a category

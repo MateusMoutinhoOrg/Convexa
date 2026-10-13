@@ -1,0 +1,55 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Third parties"}}</h1>
+      <p class="muted">{{call .T "Customers and suppliers — or both — the companies receive from and pay."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-third-party">+ {{call .T "Add third party"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <form class="card filters" action="/admin/erp/list-third-parties" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Search}}" placeholder="{{call .T "Name, document, email or phone"}}">
+    </div>
+    <div class="field">
+      <label for="role">{{call .T "Role"}}</label>
+      <select id="role" name="role">
+        <option value="">{{call .T "All"}}</option>
+        {{range .Body.Roles}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+      </select>
+    </div>
+    {{template "status-filter" .}}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/erp/list-third-parties">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Name"}}</th><th>{{call .T "Role"}}</th><th>{{call .T "Document"}}</th><th>{{call .T "Contact"}}</th><th class="right">{{call .T "Actions"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr{{if eq .Status "archived"}} class="dim"{{end}}>
+          <td><strong>{{.Name}}</strong>{{if eq .Status "archived"}} <span class="badge badge-archived">{{call $.T "archived"}}</span>{{end}}</td>
+          <td><span class="badge">{{call $.T .Role}}</span></td>
+          <td class="mono">{{.Document}}</td>
+          <td>{{if .Email}}<span class="sub">{{.Email}}</span>{{end}}{{if .Phone}}<span class="sub">{{.Phone}}</span>{{end}}</td>
+          <td><div class="row-actions">
+            <a class="btn btn-small" href="/admin/erp/list-transactions?third-party={{.Id}}">{{call $.T "Transactions"}}</a>
+            {{if $.Viewer.CanManage}}<a class="btn btn-small" href="/admin/manage/set-third-party/{{.Id}}">{{call $.T "Edit"}}</a>{{end}}
+          </div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No third parties yet."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-third-party">{{call .T "Add the first one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

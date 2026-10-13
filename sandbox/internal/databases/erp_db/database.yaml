@@ -1,0 +1,218 @@
+key-prefix: erpdb
+name: erp-db
+tables:
+    - fields:
+        - name: name
+          required: true
+          type: string
+        - name: document
+          type: string
+        - name: notes
+          type: string
+        - name: status
+          required: true
+          type: string
+        - name: created-at
+          type: integer
+      name: company
+    - fields:
+        - name: name
+          required: true
+          type: string
+        - name: kind
+          required: true
+          type: string
+        - name: institution
+          type: string
+        - name: notes
+          type: string
+        - name: status
+          required: true
+          type: string
+        - name: credit-limit
+          type: integer
+        - name: closing-day
+          type: integer
+        - name: due-day
+          type: integer
+        - name: payment-account
+          target: account
+          type: link
+        - name: created-at
+          type: integer
+      name: account
+    - fields:
+        - name: name
+          required: true
+          type: string
+        - name: type
+          required: true
+          type: string
+        - name: parent
+          target: category
+          type: link
+        - name: status
+          required: true
+          type: string
+        - name: created-at
+          type: integer
+      name: category
+    - fields:
+        - name: name
+          required: true
+          type: string
+        - name: role
+          required: true
+          type: string
+        - name: document
+          type: string
+        - name: email
+          type: string
+        - name: phone
+          type: string
+        - name: address
+          type: string
+        - name: notes
+          type: string
+        - name: status
+          required: true
+          type: string
+        - name: created-at
+          type: integer
+      name: third-party
+    - fields:
+        - name: company
+          required: true
+          target: company
+          type: link
+        - name: account
+          required: true
+          target: account
+          type: link
+        - name: category
+          target: category
+          type: link
+        - name: third-party
+          target: third-party
+          type: link
+        - name: type
+          required: true
+          type: string
+        - name: amount
+          required: true
+          type: integer
+        - name: description
+          required: true
+          type: string
+        - name: notes
+          type: string
+        - name: frequency
+          required: true
+          type: string
+        - name: interval
+          required: true
+          type: integer
+        - name: start-date
+          required: true
+          type: integer
+        - name: end-date
+          type: integer
+        - name: generated-until
+          type: integer
+        - name: status
+          required: true
+          type: string
+        - name: created-at
+          type: integer
+      name: recurrence
+    - fields:
+        - name: company
+          required: true
+          target: company
+          type: link
+        - name: account
+          required: true
+          target: account
+          type: link
+        - name: category
+          target: category
+          type: link
+        - name: third-party
+          target: third-party
+          type: link
+        - name: type
+          required: true
+          type: string
+        - name: amount
+          required: true
+          type: integer
+        - name: description
+          required: true
+          type: string
+        - name: document-number
+          type: string
+        - name: notes
+          type: string
+        - name: date
+          required: true
+          type: integer
+        - name: due-date
+          type: integer
+        - name: settled-date
+          type: integer
+        - name: status
+          required: true
+          type: string
+        - name: counterpart
+          target: transaction
+          type: link
+        - name: installment-group
+          type: integer
+        - name: installment-number
+          type: integer
+        - name: installment-count
+          type: integer
+        - name: recurrence
+          target: recurrence
+          type: link
+        - name: occurrence
+          type: integer
+        - name: card-invoice
+          type: integer
+        - name: created-at
+          type: integer
+        - name: updated-at
+          type: integer
+        - name: created-by
+          type: integer
+      name: transaction
+    - fields:
+        - name: company
+          required: true
+          target: company
+          type: link
+        - name: category
+          required: true
+          target: category
+          type: link
+        - name: period-start
+          required: true
+          type: integer
+        - name: period-end
+          required: true
+          type: integer
+        - name: amount
+          required: true
+          type: integer
+        - name: notes
+          type: string
+        - name: created-at
+          type: integer
+      name: budget
+    - fields:
+        - name: name
+          required: true
+          type: key
+        - name: value
+          type: string
+      name: setting

@@ -1,0 +1,18 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    max-bytes: 4096
+    type: form
+category: Recurrences
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminManageGenerateRecurrences
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/generate-recurrences
+priority: 100
+private: true
+response-type: text/html
+summary: Writes the occurrences of every recurrence up to the horizon

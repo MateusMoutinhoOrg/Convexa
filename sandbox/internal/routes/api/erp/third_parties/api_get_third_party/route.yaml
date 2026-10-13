@@ -1,0 +1,24 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            id:
+                type: integer
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Third parties
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/get-third-party -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":1}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpGetThirdParty
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/get-third-party
+priority: 100
+response-type: application/json
+summary: Answers one third party

@@ -1,0 +1,24 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            id:
+                type: integer
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Credit cards
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/list-card-invoices -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"id":3}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpListCardInvoices
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/list-card-invoices
+priority: 100
+response-type: application/json
+summary: Lists the invoices of a credit card

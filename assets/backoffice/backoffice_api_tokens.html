@@ -1,0 +1,67 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "API tokens"}}</h1>
+      <p class="muted">{{if .Body.ShowOwner}}{{call .T "Every token of every user. A token acts as its user on the API, with that user's role."}}{{else}}{{call .T "Tokens that act as you on the API, with your role."}}{{end}}</p>
+    </div>
+    <div class="actions"><a class="btn btn-primary" href="/admin/add-backoffice-api-token">+ {{call .T "New token"}}</a></div>
+  </section>
+
+  {{template "notice" .}}
+
+  {{if .Body.Created.Token}}
+  <section class="card" aria-live="polite" style="margin-bottom: 1rem; border-color: rgba(52, 211, 153, 0.4);">
+    <h2>{{call .Tf "Token “%s” created" .Body.Created.Name}}</h2>
+    <p class="notice notice-warn">{{call .T "Copy it now. It will not be shown again: only a hash of it is stored."}}</p>
+    <div style="display:flex; gap:0.5rem; margin-bottom: 1rem;">
+      <input type="text" id="new-token" class="mono" value="{{.Body.Created.Token}}" readonly spellcheck="false">
+      <button type="button" class="btn" id="copy-token" data-done="{{call .T "Copied"}}">{{call .T "Copy"}}</button>
+    </div>
+    <p class="muted small" style="margin-bottom: 0.5rem;">{{call .T "Send it in the Authorization header:"}}</p>
+    <code class="mono" id="token-example">curl -H "Authorization: Bearer {{.Body.Created.Token}}" <span id="origin"></span>/api/admin/me</code>
+  </section>
+  {{end}}
+
+  <div class="card table-card">
+    {{if .Body.Tokens}}
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{call .T "Name"}}</th>
+          {{if .Body.ShowOwner}}<th>{{call .T "Owner"}}</th>{{end}}
+          <th>{{call .T "Created"}}</th>
+          <th>{{call .T "Expires"}}</th>
+          <th>{{call .T "Allowed IPs"}}</th>
+          <th>{{call .T "Last used"}}</th>
+          <th class="right">{{call .T "Actions"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Body.Tokens}}
+        <tr>
+          <td>{{.Name}}<span class="sub mono">{{.Prefix}}&hellip;</span></td>
+          {{if $.Body.ShowOwner}}<td>{{.Owner}}{{if .IsOwn}}<span class="tag">{{call $.T "you"}}</span>{{end}}</td>{{end}}
+          <td>{{.Created}}</td>
+          <td>{{if .IsExpired}}<span class="badge badge-expired">{{call $.T "expired"}}</span> {{end}}{{.Expires}}</td>
+          <td><span class="mono">{{.Ips}}</span></td>
+          <td>{{.LastUsed}}</td>
+          <td>
+            <div class="row-actions">
+              <form action="/admin/revoke-backoffice-api-token/{{.Id}}" method="POST" data-confirm="{{call $.Tf "Revoke the token %s? Anything using it will stop working." .Name}}">
+                <button type="submit" class="btn btn-small btn-danger">{{call $.T "Revoke"}}</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No API tokens yet. Create one to call the API."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

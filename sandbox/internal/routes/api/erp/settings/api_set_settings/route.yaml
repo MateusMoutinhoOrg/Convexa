@@ -1,0 +1,24 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            currency:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Settings
+examples:
+    - 'curl -X POST localhost:3000/api/admin/root/set-settings -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"currency":"BRL"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminRootSetSettings
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/root/set-settings
+priority: 100
+response-type: application/json
+summary: Saves the settings

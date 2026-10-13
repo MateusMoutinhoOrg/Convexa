@@ -1,0 +1,24 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            months:
+                type: integer
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Reports
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/dashboard -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"months":12}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpDashboard
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/dashboard
+priority: 100
+response-type: application/json
+summary: Answers the overview of every company's finances

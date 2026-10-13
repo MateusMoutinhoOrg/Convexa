@@ -1,0 +1,30 @@
+body:
+    content-type: application/x-www-form-urlencoded
+    form-schema:
+        properties:
+            name:
+                type: string
+            parent:
+                type: string
+            status:
+                type: string
+            type:
+                type: string
+        type: object
+    max-bytes: 65536
+    required: true
+    type: form
+category: Categories
+methods:
+    - POST
+paths:
+    - end: -1
+      id: AdminManageAddCategory
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/manage/add-category
+priority: 100
+private: true
+response-type: text/html
+summary: Adds a category

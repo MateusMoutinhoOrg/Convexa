@@ -1,0 +1,44 @@
+{{define "form-error"}}{{if .Body.Form.Error}}<div class="alert" role="alert">{{call .T .Body.Form.Error}}</div>{{end}}{{end}}
+{{define "form-actions"}}
+<div class="form-actions">
+  <button type="submit" class="btn btn-primary">{{call .T .Body.Form.Submit}}</button>
+  <a class="btn" href="{{.Body.Form.Back}}">{{call .T "Cancel"}}</a>
+</div>
+{{end}}
+{{define "form-remove"}}
+{{if .Body.Form.RemoveAction}}
+<form class="card" action="{{.Body.Form.RemoveAction}}" method="POST" data-confirm="{{call .T "Remove it? This cannot be undone."}}" style="display:flex; justify-content: space-between; align-items:center; gap:1rem; flex-wrap: wrap;">
+  <p class="muted small">{{call .T "Removing is refused while other records use it; archive it instead to keep the history."}}</p>
+  <button type="submit" class="btn btn-danger">{{call .T "Remove"}}</button>
+</form>
+{{end}}
+{{end}}
+{{define "status-filter"}}
+<div class="field">
+  <label for="status">{{call .T "Status"}}</label>
+  <select id="status" name="status">
+    <option value="">{{call .T "All"}}</option>
+    {{range .Body.Statuses}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+  </select>
+</div>
+{{end}}
+{{define "status-select"}}
+<div class="form-group">
+  <label for="status">{{call .T "Status"}}</label>
+  <select id="status" name="status">
+    {{range .Body.Statuses}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+  </select>
+  <p class="hint">{{call .T "An archived record keeps its history but is not offered for new entries."}}</p>
+</div>
+{{end}}
+{{define "chart"}}
+{{if .Empty}}<p class="empty">—</p>{{else}}
+<svg class="chart" viewBox="{{.ViewBox}}" role="img">
+  {{range .YTicks}}<line class="grid-line" x1="{{$.PlotLeft}}" x2="{{$.Width}}" y1="{{.Y}}" y2="{{.Y}}"></line><text x="{{$.PlotLeft}}" dx="-6" y="{{.Y}}" dy="4" text-anchor="end">{{.Label}}</text>{{end}}
+  {{if .HasZero}}<line class="zero-line" x1="{{.PlotLeft}}" x2="{{.Width}}" y1="{{.Zero}}" y2="{{.Zero}}"></line>{{end}}
+  {{range .Bars}}<rect class="{{.Class}}" x="{{.X}}" y="{{.Y}}" width="{{.W}}" height="{{.H}}" rx="2"><title>{{.Title}}</title></rect>{{end}}
+  {{range .Lines}}<polyline class="{{.Class}}" points="{{.Points}}"></polyline>{{end}}
+  {{range .XTicks}}<text x="{{.X}}" y="{{.Y}}" text-anchor="{{.Anchor}}">{{.Label}}</text>{{end}}
+</svg>
+{{end}}
+{{end}}

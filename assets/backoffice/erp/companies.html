@@ -1,0 +1,53 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Companies"}}</h1>
+      <p class="muted">{{call .T "Everything in Convexa belongs to a company — personal finances too: register yourself as one."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-company">+ {{call .T "Add company"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  <form class="card filters" action="/admin/erp/list-companies" method="GET">
+    <div class="field grow">
+      <label for="search">{{call .T "Search"}}</label>
+      <input type="search" id="search" name="search" value="{{.Body.Search}}" placeholder="{{call .T "Name or document"}}">
+    </div>
+    {{template "status-filter" .}}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{call .T "Filter"}}</button>
+      <a class="btn" href="/admin/erp/list-companies">{{call .T "Clear"}}</a>
+    </div>
+  </form>
+  <div class="card table-card">
+    {{if .Body.Rows}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>{{call .T "Name"}}</th><th>{{call .T "Document"}}</th><th>{{call .T "Status"}}</th>
+        <th class="right">{{call .T "Cash"}}</th><th class="right">{{call .T "Card debt"}}</th><th class="right">{{call .T "Actions"}}</th>
+      </tr></thead>
+      <tbody>
+        {{range .Body.Rows}}
+        <tr>
+          <td><strong>{{.Company.Name}}</strong>{{if .Company.Notes}}<span class="sub">{{.Company.Notes}}</span>{{end}}</td>
+          <td class="mono">{{.Company.Document}}</td>
+          <td><span class="badge badge-{{.Company.Status}}">{{call $.T .Company.Status}}</span></td>
+          <td class="money {{call $.Sign .Cash}}">{{call $.Money .Cash}}</td>
+          <td class="money">{{call $.Money .Debt}}</td>
+          <td><div class="row-actions">
+            <a class="btn btn-small" href="/admin/erp/company-report?company={{.Company.Id}}">{{call $.T "Report"}}</a>
+            <a class="btn btn-small" href="/admin/erp/list-transactions?company={{.Company.Id}}">{{call $.T "Transactions"}}</a>
+            {{if $.Viewer.CanManage}}<a class="btn btn-small" href="/admin/manage/set-company/{{.Company.Id}}">{{call $.T "Edit"}}</a>{{end}}
+          </div></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "No companies yet."}}{{if .Viewer.CanManage}} <a href="/admin/manage/add-company">{{call .T "Add the first one."}}</a>{{end}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

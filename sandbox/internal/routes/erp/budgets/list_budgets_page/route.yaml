@@ -1,0 +1,40 @@
+category: Budgets
+methods:
+    - GET
+parameters:
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Category
+      key: category
+      sources:
+        - query
+      type: string
+    - id: From
+      key: from
+      sources:
+        - query
+      type: string
+    - id: To
+      key: to
+      sources:
+        - query
+      type: string
+    - id: Notice
+      key: notice
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpListBudgets
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/list-budgets
+priority: 100
+private: true
+response-type: text/html
+summary: Lists the budgets

@@ -1,0 +1,55 @@
+category: Reports
+methods:
+    - GET
+parameters:
+    - id: From
+      key: from
+      sources:
+        - query
+      type: string
+    - id: To
+      key: to
+      sources:
+        - query
+      type: string
+    - id: Group
+      key: group
+      sources:
+        - query
+      type: string
+    - id: Basis
+      key: basis
+      sources:
+        - query
+      type: string
+    - id: Company
+      key: company
+      sources:
+        - query
+      type: string
+    - id: Account
+      key: account
+      sources:
+        - query
+      type: string
+    - id: Category
+      key: category
+      sources:
+        - query
+      type: string
+    - id: ThirdParty
+      key: third-party
+      sources:
+        - query
+      type: string
+paths:
+    - end: -1
+      id: AdminErpCashFlow
+      start: 0
+      trigger:
+        type: equal
+        value: /admin/erp/cash-flow
+priority: 100
+private: true
+response-type: text/html
+summary: Shows the cash flow of a period

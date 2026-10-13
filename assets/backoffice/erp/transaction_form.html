@@ -1,0 +1,92 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{if .Body.Installment}}<p class="notice notice-warn">{{call .Tf "This is installment %s. Changes apply to it alone." .Body.Installment}}</p>{{end}}
+    {{if .Body.Recurrence}}<p class="notice notice-warn">{{call .Tf "Written by the recurrence “%s”. Changes apply to this occurrence alone." .Body.Recurrence}}</p>{{end}}
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <input type="hidden" name="next" value="{{.Body.Values.Next}}">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="type">{{call .T "Type"}}</label>
+          <select id="type" name="type">{{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="amount">{{call .T "Amount"}}</label>
+          <input type="text" inputmode="decimal" class="amount-input" id="amount" name="amount" value="{{.Body.Values.Amount}}" required placeholder="{{call .T "0.00"}}" autofocus>
+          <p class="hint" data-show-when="type=adjustment">{{call .T "Positive adds to the balance, negative subtracts."}}</p>
+        </div>
+        <div class="form-group full">
+          <label for="description">{{call .T "Description"}}</label>
+          <input type="text" id="description" name="description" value="{{.Body.Values.Description}}" maxlength="200">
+        </div>
+        <div class="form-group">
+          <label for="company">{{call .T "Company"}}</label>
+          <select id="company" name="company" required><option value="">—</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="account">{{call .T "Account"}}</label>
+          <select id="account" name="account" required><option value="">—</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group" data-show-when="type=income|expense">
+          <label for="category">{{call .T "Category"}}</label>
+          <select id="category" name="category" data-filter-by="type"><option value="">{{call .T "None"}}</option>{{range .Body.Categories}}<option value="{{.Value}}" data-group="{{.Group}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group" data-show-when="type=income|expense">
+          <label for="third-party">{{call .T "Third party"}}</label>
+          <select id="third-party" name="third-party"><option value="">{{call .T "None"}}</option>{{range .Body.ThirdParties}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="date">{{call .T "Entry date"}}</label>
+          <input type="date" id="date" name="date" value="{{.Body.Values.Date}}" required>
+          <p class="hint">{{call .T "The date the transaction is entered for. On a credit card, the purchase date."}}</p>
+        </div>
+        <div class="form-group">
+          <label for="due-date">{{call .T "Due date"}}</label>
+          <input type="date" id="due-date" name="due-date" value="{{.Body.Values.DueDate}}">
+          <p class="hint">{{call .T "Blank: the entry date."}}</p>
+        </div>
+        <div class="form-group">
+          <label class="inline"><input type="checkbox" id="settled" name="settled" value="on"{{if .Body.Settled}} checked{{end}}> {{call .T "Already paid or received"}}</label>
+          <p class="hint">{{call .T "Unticked, it stays pending: a payable or a receivable."}}</p>
+        </div>
+        <div class="form-group" data-show-when="settled=on">
+          <label for="settled-date">{{call .T "Settlement date"}}</label>
+          <input type="date" id="settled-date" name="settled-date" value="{{.Body.Values.SettledDate}}">
+          <p class="hint">{{call .T "Blank: the due date, or today if it has not come yet."}}</p>
+        </div>
+        {{if not .Body.IsEdit}}
+        <div class="form-group">
+          <label for="installments">{{call .T "Installments"}}</label>
+          <input type="number" min="1" max="360" id="installments" name="installments" value="{{.Body.Values.Installments}}" placeholder="1">
+          <p class="hint">{{call .T "Split the amount into this many monthly installments."}}</p>
+        </div>
+        {{end}}
+        <div class="form-group">
+          <label for="card-invoice">{{call .T "Card invoice"}} <span class="muted">({{call .T "credit cards only"}})</span></label>
+          <input type="month" id="card-invoice" name="card-invoice" value="{{.Body.Values.CardInvoice}}">
+          <p class="hint">{{call .T "Blank: worked out from the date and the card's closing day."}}</p>
+        </div>
+        <div class="form-group">
+          <label for="document-number">{{call .T "Document number"}}</label>
+          <input type="text" id="document-number" name="document-number" value="{{.Body.Values.DocumentNumber}}" maxlength="60">
+        </div>
+        <div class="form-group full">
+          <label for="notes">{{call .T "Notes"}}</label>
+          <textarea id="notes" name="notes" maxlength="2000">{{.Body.Values.Notes}}</textarea>
+        </div>
+      </div>
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{if .Body.Form.RemoveAction}}
+  <form class="card" action="{{.Body.Form.RemoveAction}}" method="POST" data-confirm="{{call .T "Remove this transaction? This cannot be undone."}}" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <input type="hidden" name="next" value="{{.Body.Values.Next}}">
+    <p class="muted small">{{call .T "Removing deletes it from every balance and report."}}</p>
+    <button type="submit" class="btn btn-danger">{{call .T "Remove"}}</button>
+  </form>
+  {{end}}
+</main>
+{{end}}

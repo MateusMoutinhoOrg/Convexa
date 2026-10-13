@@ -1,0 +1,51 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Credit cards"}}</h1>
+      <p class="muted">{{call .T "Each purchase lands on the invoice of the month it was made in, up to the closing day. Paying an invoice is a transfer from the account that pays the card."}}</p>
+    </div>
+    {{if .Viewer.CanManage}}<div class="actions"><a class="btn btn-primary" href="/admin/manage/add-account">+ {{call .T "Add card"}}</a></div>{{end}}
+  </section>
+  {{template "notice" .}}
+  {{if .Body.Cards}}
+  <div class="grid">
+    {{range .Body.Cards}}
+    <article class="card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+        <div>
+          <h2 style="margin-bottom:0.3rem;">{{.Summary.Card.Name}}</h2>
+          <p class="muted small">{{call $.Tf "Closes on day %d, due on day %d" .Summary.Card.ClosingDay .Summary.Card.DueDay}}{{if .PaymentAccount}} · {{call $.Tf "paid from %s" .PaymentAccount}}{{end}}</p>
+        </div>
+        <a class="btn btn-small" href="/admin/erp/list-card-invoices/{{.Summary.Card.Id}}">{{call $.T "Invoices"}}</a>
+      </div>
+      <dl class="facts" style="margin-top:1rem;">
+        <dt>{{call $.T "Debt"}}</dt><dd class="num"><strong>{{call $.Money .Summary.Debt}}</strong></dd>
+        {{if .Summary.Card.CreditLimit}}
+        <dt>{{call $.T "Limit"}}</dt><dd class="num">{{call $.Money .Summary.Card.CreditLimit}}</dd>
+        <dt>{{call $.T "Available"}}</dt><dd class="num {{call $.Sign .Summary.Available}}">{{call $.Money .Summary.Available}}</dd>
+        {{end}}
+      </dl>
+      {{if .Summary.Card.CreditLimit}}<div class="meter{{if ge .Used 90}} over{{end}}" style="margin-top:0.8rem;"><span style="width: {{.Used}}%"></span></div>{{end}}
+      <h2 style="margin-top:1.2rem;">{{call $.T "Open invoice"}} · {{call $.Month .Summary.Current.Month}}</h2>
+      <p class="small"><a href="/admin/erp/card-invoice/{{.Summary.Card.Id}}?month={{call $.ISO .Summary.Current.Closing | printf "%.7s"}}">{{call $.Money .Summary.Current.Charges}}</a> · {{call $.Tf "closes %s" (call $.Date .Summary.Current.Closing)}}</p>
+      {{if .Summary.HasNextDue}}
+      <div class="notice {{if eq .Summary.NextDue.Status "overdue"}}notice-error{{else}}notice-warn{{end}}" style="margin: 1rem 0 0;">
+        {{call $.Tf "Invoice %s: %s left, due %s" (call $.Month .Summary.NextDue.Month) (call $.Money .Summary.NextDue.Remaining) (call $.Date .Summary.NextDue.Due)}}
+        <a href="/admin/erp/card-invoice/{{.Summary.Card.Id}}?month={{call $.ISO .Summary.NextDue.Closing | printf "%.7s"}}">{{call $.T "Pay"}} →</a>
+      </div>
+      {{end}}
+      {{if $.Viewer.CanManage}}
+      <div class="form-actions" style="margin-top:1rem;">
+        <a class="btn btn-small" href="/admin/manage/add-transaction?type=expense&amp;account={{.Summary.Card.Id}}">+ {{call $.T "Purchase"}}</a>
+        <a class="btn btn-small" href="/admin/manage/set-account/{{.Summary.Card.Id}}">{{call $.T "Edit card"}}</a>
+      </div>
+      {{end}}
+    </article>
+    {{end}}
+  </div>
+  {{else}}
+  <div class="card"><p class="empty">{{call .T "No credit cards yet. Add an account of the credit card kind."}}</p></div>
+  {{end}}
+</main>
+{{end}}

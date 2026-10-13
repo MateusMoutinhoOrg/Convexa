@@ -1,0 +1,73 @@
+{{define "content"}}
+<main>
+  <section class="head">
+    <div>
+      <h1>{{call .T "Projected balance"}}</h1>
+      <p class="muted">{{call .T "Where the cash is heading: today's balance plus every income and expense to come — pending transactions, recurrences and card invoices — with and without what is left of the budgets."}}</p>
+    </div>
+  </section>
+  <form class="card filters" action="/admin/erp/projection" method="GET" data-auto-submit>
+    <div class="field"><label for="months">{{call .T "Months ahead"}}</label><select id="months" name="months">{{range .Body.MonthsList}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="company">{{call .T "Company"}}</label><select id="company" name="company"><option value="">{{call .T "All"}}</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="field"><label for="account">{{call .T "Account"}}</label><select id="account" name="account"><option value="">{{call .T "Cash accounts"}}</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select></div>
+    <div class="actions"><button type="submit" class="btn btn-primary">{{call .T "Show"}}</button></div>
+  </form>
+  {{with .Body.Projection}}
+  <div class="kpis">
+    <div class="kpi"><div class="label">{{call $.T "Today"}}</div><div class="value {{call $.Sign .Opening}}">{{call $.Money .Opening}}</div><div class="hint">{{call $.Date .Start}}</div></div>
+    <div class="kpi"><div class="label">{{call $.T "Without budgets"}}</div><div class="value {{call $.Sign .Final}}">{{call $.Money .Final}}</div><div class="hint">{{call $.Date .End}}</div></div>
+    {{if .HasBudgets}}<div class="kpi"><div class="label">{{call $.T "With budgets"}}</div><div class="value {{call $.Sign .FinalWithBudgets}}">{{call $.Money .FinalWithBudgets}}</div><div class="hint">{{call $.T "budgets left"}} {{call $.Money .BudgetTotal}}</div></div>{{end}}
+    <div class="kpi"><div class="label">{{call $.T "Lowest point"}}</div><div class="value {{call $.Sign .Lowest}}">{{call $.Money .Lowest}}</div><div class="hint">{{call $.Date .LowestDate}}{{if .HasBudgets}} · {{call $.T "with budgets"}} {{call $.Money .LowestWithBudgets}}{{end}}</div></div>
+  </div>
+  {{end}}
+  <div class="card">
+    {{template "chart" .Body.Chart}}
+    <div class="legend"><span class="l-a">{{call .T "Without budgets"}}</span>{{if .Body.Projection.HasBudgets}}<span class="l-b">{{call .T "With budgets"}}</span>{{end}}</div>
+    {{if not .Body.Projection.HasBudgets}}<p class="hint">{{call .T "Budgets belong to no account, so they count only when every account is in view."}}</p>{{end}}
+  </div>
+  <h2 class="section">{{call .T "Month by month"}}</h2>
+  <div class="card table-card">
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Month"}}</th><th class="right">{{call .T "Opening"}}</th><th class="right">{{call .T "Income"}}</th><th class="right">{{call .T "Expense"}}</th><th class="right">{{call .T "Closing"}}</th>{{if .Body.Projection.HasBudgets}}<th class="right">{{call .T "Budgets left"}}</th><th class="right">{{call .T "Closing with budgets"}}</th>{{end}}</tr></thead>
+      <tbody>
+        {{range .Body.MonthRows}}
+        <tr>
+          <td>{{.Label}}</td>
+          <td class="money">{{call $.Money .Month.Opening}}</td>
+          <td class="money pos">{{call $.Money .Month.Income}}</td>
+          <td class="money neg">{{call $.Money .Month.Expense}}</td>
+          <td class="money {{call $.Sign .Month.Closing}}"><strong>{{call $.Money .Month.Closing}}</strong></td>
+          {{if $.Body.Projection.HasBudgets}}<td class="money {{call $.Sign .Month.Budgets}}">{{call $.Money .Month.Budgets}}</td><td class="money {{call $.Sign .Month.ClosingWithBudgets}}"><strong>{{call $.Money .Month.ClosingWithBudgets}}</strong></td>{{end}}
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <h2 class="section">{{call .T "Everything to come"}}</h2>
+  <div class="card table-card">
+    {{if .Body.Events}}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{call .T "Date"}}</th><th>{{call .T "Description"}}</th><th>{{call .T "Source"}}</th><th>{{call .T "Company"}}</th><th>{{call .T "Account"}}</th><th class="right">{{call .T "Amount"}}</th></tr></thead>
+      <tbody>
+        {{range .Body.Events}}
+        <tr>
+          <td style="white-space:nowrap">{{call $.Date .Event.Date}}{{if .Event.Overdue}} <span class="badge badge-overdue">{{call $.T "overdue"}}</span>{{end}}</td>
+          <td><a href="{{.Href}}">{{call $.T .Description}}</a><span class="sub">{{.Category}}{{if .ThirdParty}} · {{.ThirdParty}}{{end}}</span></td>
+          <td><span class="badge badge-{{.Event.Source}}">{{call $.T .Event.Source}}</span></td>
+          <td>{{.Company}}</td>
+          <td>{{.Account}}</td>
+          <td class="money {{call $.Sign .Event.Amount}}">{{call $.Money .Event.Amount}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+    {{else}}
+    <p class="empty">{{call .T "Nothing to come in this horizon."}}</p>
+    {{end}}
+  </div>
+</main>
+{{end}}

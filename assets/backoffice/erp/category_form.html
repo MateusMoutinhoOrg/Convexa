@@ -1,0 +1,34 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back to categories"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <div class="form-group">
+        <label for="name">{{call .T "Name"}}</label>
+        <input type="text" id="name" name="name" value="{{.Body.Fields.Name}}" required maxlength="120" placeholder="{{call .T "e.g. Rent, Sales, Payroll"}}" autofocus>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="type">{{call .T "Type"}}</label>
+          <select id="type" name="type">
+            {{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="parent">{{call .T "Under"}} <span class="muted">({{call .T "optional"}})</span></label>
+          <select id="parent" name="parent">
+            <option value="">{{call .T "Top level"}}</option>
+            {{range .Body.Parents}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Group}} · {{.Label}}</option>{{end}}
+          </select>
+          <p class="hint">{{call .T "A category sits only under one of the same type."}}</p>
+        </div>
+      </div>
+      <div style="margin-top:1.1rem;">{{template "status-select" .}}</div>
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{template "form-remove" .}}
+</main>
+{{end}}

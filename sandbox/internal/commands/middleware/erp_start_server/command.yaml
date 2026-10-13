@@ -1,0 +1,21 @@
+args:
+    - end: 0
+      id: Verb
+      start: 0
+      trigger:
+        type: equal
+        value: start-server
+category: Middleware
+description: 'Runs in front of start-server and answers nothing. It reads --utc-offset, the minutes from UTC the dates of Convexa are read in (-180 for Brasília), and --recurrence-horizon, how many days ahead the recurrences are written as pending transactions, then starts the job that writes them: now, and every 6 hours while the server runs.'
+flags:
+    - default: "0"
+      description: 'minutes from UTC the dates are read in: -180 for Brasília, 60 for Paris'
+      id: UtcOffset
+      type: integer
+    - default: "31"
+      description: how many days ahead the occurrences of the recurrences are written as pending transactions
+      id: RecurrenceHorizon
+      type: integer
+priority: 51
+strict: false
+summary: Read the ERP settings in front of start-server and start writing the recurrences

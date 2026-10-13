@@ -1,0 +1,19 @@
+body:
+    content-type: application/json
+    max-bytes: 1048576
+    type: json
+category: Credit cards
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/list-credit-cards -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpListCreditCards
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/list-credit-cards
+priority: 100
+response-type: application/json
+summary: Lists the credit cards and where they stand

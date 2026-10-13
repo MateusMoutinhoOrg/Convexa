@@ -1,0 +1,74 @@
+{{define "content"}}
+<main class="narrow">
+  <a class="back" href="{{.Body.Form.Back}}">&larr; {{call .T "Back to recurrences"}}</a>
+  <div class="card">
+    <h1>{{call .T .Body.Form.Title}}</h1>
+    {{if .Body.Form.Id}}<p class="notice notice-warn">{{call .T "Saving rewrites its pending occurrences from today on. Settled and overdue ones stay as they are."}}</p>{{end}}
+    {{template "form-error" .}}
+    <form action="{{.Body.Form.Action}}" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="type">{{call .T "Type"}}</label>
+          <select id="type" name="type">{{range .Body.Types}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="amount">{{call .T "Amount"}}</label>
+          <input type="text" inputmode="decimal" class="amount-input" id="amount" name="amount" value="{{.Body.Values.Amount}}" required placeholder="{{call .T "0.00"}}">
+        </div>
+        <div class="form-group full">
+          <label for="description">{{call .T "Description"}}</label>
+          <input type="text" id="description" name="description" value="{{.Body.Values.Description}}" required maxlength="200" placeholder="{{call .T "e.g. Office rent, Salary, Internet"}}">
+        </div>
+        <div class="form-group">
+          <label for="company">{{call .T "Company"}}</label>
+          <select id="company" name="company" required><option value="">—</option>{{range .Body.Companies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="account">{{call .T "Account"}}</label>
+          <select id="account" name="account" required><option value="">—</option>{{range .Body.Accounts}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="category">{{call .T "Category"}}</label>
+          <select id="category" name="category" data-filter-by="type"><option value="">{{call .T "None"}}</option>{{range .Body.Categories}}<option value="{{.Value}}" data-group="{{.Group}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="third-party">{{call .T "Third party"}}</label>
+          <select id="third-party" name="third-party"><option value="">{{call .T "None"}}</option>{{range .Body.ThirdParties}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="frequency">{{call .T "Repeats"}}</label>
+          <select id="frequency" name="frequency">{{range .Body.Frequencies}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group">
+          <label for="interval">{{call .T "Every"}}</label>
+          <input type="number" min="1" max="120" id="interval" name="interval" value="{{.Body.Values.Interval}}">
+          <p class="hint">{{call .T "1 for every week, month or year; 3 for every three of them."}}</p>
+        </div>
+        <div class="form-group">
+          <label for="start-date">{{call .T "First occurrence"}}</label>
+          <input type="date" id="start-date" name="start-date" value="{{.Body.Values.StartDate}}" required>
+        </div>
+        <div class="form-group">
+          <label for="end-date">{{call .T "Last day"}} <span class="muted">({{call .T "optional"}})</span></label>
+          <input type="date" id="end-date" name="end-date" value="{{.Body.Values.EndDate}}">
+        </div>
+        <div class="form-group">
+          <label for="status">{{call .T "Status"}}</label>
+          <select id="status" name="status">{{range .Body.Statuses}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{call $.T .Label}}</option>{{end}}</select>
+        </div>
+        <div class="form-group full">
+          <label for="notes">{{call .T "Notes"}}</label>
+          <textarea id="notes" name="notes" maxlength="2000">{{.Body.Values.Notes}}</textarea>
+        </div>
+      </div>
+      {{template "form-actions" .}}
+    </form>
+  </div>
+  {{if .Body.Form.RemoveAction}}
+  <form class="card" action="{{.Body.Form.RemoveAction}}" method="POST" data-confirm="{{call .T "Remove this recurrence and its pending occurrences from today on?"}}" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <p class="muted small">{{call .T "The transactions it already wrote, settled or overdue, stay."}}</p>
+    <button type="submit" class="btn btn-danger">{{call .T "Remove"}}</button>
+  </form>
+  {{end}}
+</main>
+{{end}}

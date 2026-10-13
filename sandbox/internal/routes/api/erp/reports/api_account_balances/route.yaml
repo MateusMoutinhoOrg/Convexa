@@ -1,0 +1,24 @@
+body:
+    content-type: application/json
+    json-schema:
+        properties:
+            date:
+                type: string
+        type: object
+    max-bytes: 1048576
+    type: json
+category: Reports
+examples:
+    - 'curl -X POST localhost:3000/api/admin/erp/account-balances -H "Authorization: Bearer $TOKEN" -H ''Content-Type: application/json'' -d ''{"date":"2026-10-12"}'''
+methods:
+    - POST
+paths:
+    - end: -1
+      id: ApiAdminErpAccountBalances
+      start: 0
+      trigger:
+        type: equal
+        value: /api/admin/erp/account-balances
+priority: 100
+response-type: application/json
+summary: Answers the balance of every account, whole and by company
