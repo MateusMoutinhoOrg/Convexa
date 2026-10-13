@@ -1,6 +1,3 @@
-### ferramentas
-
-### ferramentas
 
 ### espeficicacoes.ferramentas-agnos
 
