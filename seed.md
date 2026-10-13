@@ -1,16 +1,21 @@
 
-### espeficicacoes.ferramentas-agnos
+### ferramentas-agnos
 
-### especificacoes.ferramentas-agnos-descrição:
+### ferramentas-agnos-descrição:
 Cli ja instalado no pc, que serve para construir aplicacoes.
-### especificacoes.ferramentas-agnos-modo-de-uso:
+### ferramentas-agnos-modo-de-uso:
 use o modo backoffice com **backoffice-init** 
 
-### especificacoes.idiona:
+### idioma:
 o sistema deve ser feito todo em ingles, desde o codigo, ate a interface de uso, porem a nivel interface (api tambem totalmente em ingles), deve ser permitido colocar o idioma em portugues.
 
-### especificacoes.api
+### api
 deve haver apis para controlar a aplicacao programaticamente.
+
+### tipos-de-usuario.
+deve haver usuarios root com controle total (incluindo de backups)
+deve haver usuarios admnistradores com controle de cadastros de contas e empresas
+deve haver usuarios basicos que apenas podem ver lancamentos e relatorios,empresas,etc.
 
 
 ### objetivo:
